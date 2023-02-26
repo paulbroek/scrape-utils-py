@@ -241,7 +241,7 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
 
         # TODO: deligate to the children class..
         # logger.info(f"data={pformat(item.dict())}")
-        logger.info("WILL PATCH")
+        # logger.info("WILL PATCH")
         # return await self.patch(self._get_id_attr(item), data=data_patch, **kwargs)
         # logger.info(f"{self._id_attr_name()=} {getattr(item, self._id_attr_name())=}")
         # return await self.patch(

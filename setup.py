@@ -3,27 +3,19 @@ from typing import Final, List
 
 from setuptools import find_packages, setup
 
-# requires: Final[List[str]] = [
-#     "yapic.json",
-#     "pandas",
-#     "scrapy",
-#     "redis",
-#     "sqlmodel",
-#     "fastapi",
-#     "asyncpg",
-#     "psycopg2",
-#     "requests",
-#     "python-dotenv",
-#     "nanoid",
-#     "geopandas",
-#     "geojson",
-#     "geopy",
-#     "aio-pika",
-# ]
+requires: Final[List[str]] = [
+    "yapic.json",
+    "redis",
+    "sqlmodel",
+    "fastapi",
+    "asyncpg",
+    "psycopg2",
+    "requests",
+    "python-dotenv",
+]
 
-requires: Final[List[str]] = []
+# requires: Final[List[str]] = []
 
-# TODO: import version number from .env file?
 setup(
     name="scrape_utils",
     version="0.0.1",

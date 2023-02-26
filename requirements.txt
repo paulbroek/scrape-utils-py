@@ -1,0 +1,8 @@
+yapic.json
+redis
+sqlmodel
+fastapi
+asyncpg
+psycopg2
+requests
+python-dotenv

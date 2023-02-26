@@ -13,9 +13,7 @@ from rarc_utils.log import get_create_logger
 from .config import devEnvs
 from .settings import ENV_FILE_PATTERN
 
-# TODO: yes/no create logger here? it will appear whenever printing
 logger = get_create_logger(cmdLevel=logging.INFO, color=1)
-# logger = logging.getLogger(__name__)
 
 
 def log_python_env(devEnv: devEnvs) -> None:

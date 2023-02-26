@@ -4,4 +4,6 @@ from typing import Final
 DECODE_RESPONSES: Final[bool] = True
 MAX_REDIS_CONNECTIONS: Final[int] = 100
 
+PG_POOL_SIZE: Final[int] = 40
+
 ENV_FILE_PATTERN: Final[str] = ".env.{}"
