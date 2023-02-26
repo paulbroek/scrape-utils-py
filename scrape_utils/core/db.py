@@ -1,3 +1,7 @@
+"""db.py.
+
+PostgreSQL connection methods
+"""
 import logging
 # from sys import modules
 from typing import AsyncGenerator, Final
@@ -27,9 +31,10 @@ logger = logging.getLogger(__name__)
 poolSize: Final[int] = 40
 
 
-def get_async_engine(settings):
+# settings.db_async_connection_str
+def get_async_engine(async_connection_str: str):
     async_engine = create_async_engine(
-        settings.db_async_connection_str,
+        async_connection_str,
         echo=False,
         future=True,
         pool_size=poolSize,
@@ -41,16 +46,16 @@ def get_async_engine(settings):
 # engine = create_engine(settings.db_connection_str, echo=True)
 
 
-async def init_db(settings):
-    async with get_async_engine(settings).begin() as conn:
+async def init_db(async_connection_str: str):
+    async with get_async_engine(async_connection_str).begin() as conn:
         # await conn.run_sync(SQLModel.metadata.drop_all)
         await conn.run_sync(SQLModel.metadata.create_all)
 
 
 # async def get_async_session() -> AsyncSession:
-def get_async_session(settings) -> sessionmaker:
+def get_async_session(async_connection_str: str) -> sessionmaker:
     async_session = sessionmaker(
-        bind=get_async_engine(settings),
+        bind=get_async_engine(async_connection_str),
         class_=AsyncSession,
         expire_on_commit=False,
     )
@@ -59,17 +64,18 @@ def get_async_session(settings) -> sessionmaker:
     #     yield session
 
 
-async def yield_async_Session(settings) -> AsyncGenerator:
-    async_session = get_async_session(settings)
+async def yield_async_Session(async_connection_str: str) -> AsyncGenerator:
+    async_session = get_async_session(async_connection_str)
     async with async_session() as session:
         yield session
 
 
-def get_engine(settings, **kwargs) -> Engine:
-    engine: Engine = create_engine(settings.db_connection_str, **kwargs)
+# settings.db_connection_str
+def get_engine(connection_str: str, **kwargs) -> Engine:
+    engine: Engine = create_engine(connection_str, **kwargs)
     return engine
 
 
-def get_session(settings, echo: bool = False) -> Session:
-    engine: Engine = get_engine(settings, echo=echo)
+def get_session(connection_str: str, echo: bool = False) -> Session:
+    engine: Engine = get_engine(connection_str, echo=echo)
     return Session(engine)

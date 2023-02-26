@@ -1,25 +1,32 @@
+"""redis_connection.py.
+
+Redis connection methods
+"""
+
 import logging
-from typing import AsyncGenerator, Final
 
 import redis
 from redis import asyncio as aioredis
 
-from .. import settings
 from .settings import DECODE_RESPONSES, MAX_REDIS_CONNECTIONS
+
+# from typing import AsyncGenerator
+
 
 logger = logging.getLogger(__name__)
 
 
-def get_redis_pool() -> aioredis.ConnectionPool:
+def get_redis_pool(redis_url: str) -> aioredis.ConnectionPool:
     """Create async redis connection pool."""
-    logger.info(f"using {settings.redis_url=}")
+    logger.info(f"using {redis_url=}")
     return aioredis.ConnectionPool.from_url(
-        settings.redis_url, decode_responses=DECODE_RESPONSES
+        redis_url, decode_responses=DECODE_RESPONSES
     )
 
 
 # async def redis_connection(redis_pool=None) -> AsyncGenerator[aioredis.Redis, None]:
 def redis_connection(redis_pool: aioredis.ConnectionPool) -> aioredis.Redis:
+    """Create async redis connection."""
     return aioredis.Redis(
         connection_pool=redis_pool, max_connections=MAX_REDIS_CONNECTIONS
     )
@@ -31,8 +38,7 @@ def redis_connection(redis_pool: aioredis.ConnectionPool) -> aioredis.Redis:
     #     return client
 
 
-def blocking_redis_connection() -> redis.StrictRedis:
-    r: redis.StrictRedis = redis.from_url(
-        settings.redis_url, decode_responses=DECODE_RESPONSES
-    )
+def blocking_redis_connection(redis_url: str) -> redis.StrictRedis:
+    """Create blocking redis connection."""
+    r: redis.StrictRedis = redis.from_url(redis_url, decode_responses=DECODE_RESPONSES)  # type: ignore[call-overload]
     return r
