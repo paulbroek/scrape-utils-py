@@ -10,7 +10,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import generic_relationship
 from sqlmodel import Field, ForeignKey, Relationship
 
-from ....models.main import UUIDModel
+from ...models.main import UUIDModel
 from ..base import Base as SM_Base
 
 # sqlmodel and sqlmodel can be used together, as long as their metadatas are combined in alembic `env.py` file
