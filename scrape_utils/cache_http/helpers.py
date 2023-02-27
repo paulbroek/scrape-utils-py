@@ -18,7 +18,6 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from yapic import json  # type: ignore[import]
 
 from ..core.db import get_async_session
-# from ..core.settings import START_URLS_KEY
 from ..models.cache import HttpCacheItem
 from ..models.cache.crud import CacheCRUD
 from ..models.redis import SitemapRecord
@@ -29,7 +28,6 @@ logger = logging.getLogger(__name__)
 loop = get_create_event_loop()
 
 
-# settings.data_dir
 def save_response_to_file(response: Response, data_dir: str) -> None:
     page_path = Path(data_dir) / "page.html"
     with open(page_path, "wb") as html_file:
@@ -52,7 +50,6 @@ def make_cache_item(response: Response) -> HttpCacheItem:
     return HttpCacheItem(**data)
 
 
-# settings.db_async_connection_str
 def save_compressed_response_pg(response: Response, async_connection_str: str) -> None:
     """Save / upsert compressed http response to postgres."""
     # using CRUD is safest
@@ -69,8 +66,6 @@ def save_compressed_response_pg(response: Response, async_connection_str: str) -
     loop.run_until_complete(inner())
 
 
-# settings.redis_http_cache_key
-# settings.redis_http_date_key
 def save_compressed_response_redis(
     client: redis.StrictRedis,
     http_cache_key: str,
@@ -92,7 +87,6 @@ def save_compressed_response_redis(
     client.zadd(http_date_key, {url: time})
 
 
-# settings.redis_http_cache_key
 def move_cache(
     client_from: redis.StrictRedis,
     client_to: redis.StrictRedis,
@@ -130,8 +124,6 @@ def move_cache(
     client_to.hmset(http_cache_key, dict(zip(all_keys, cache_items)))
 
 
-# settings.redis_http_cache_key
-# START_URLS_KEY
 def populate_start_urls_from_redis_cache(
     client: redis.StrictRedis, http_cache_key: str, start_urls_key: str
 ):
@@ -211,7 +203,6 @@ def load_compressed_responses_redis(
     return [decompress_response(compr_response) for compr_response in cache_items]
 
 
-# settings.redis_http_cache_key
 def load_compressed_response_redis(
     client: redis.StrictRedis, http_cache_key: str, url: str
 ) -> Optional[HttpCacheItem]:

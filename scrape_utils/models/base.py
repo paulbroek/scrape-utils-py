@@ -1,14 +1,7 @@
 import logging
 from datetime import datetime
 
-from sqlalchemy.ext.declarative import ConcreteBase, declarative_base
 from sqlmodel import SQLModel
-
-# Base = declarative_base()
-
-# class Base(DeclarativeBase):
-#     pass
-
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +36,3 @@ class Base(SQLModel):
         json_data_new: dict = cls._date_parser(json_data, **kwargs)
 
         return cls(**json_data_new)
-
-
-# class BaseCreate(SQLModel):
-#     pass

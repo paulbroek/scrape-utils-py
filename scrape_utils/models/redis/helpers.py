@@ -38,9 +38,6 @@ ModelType = TypeVar("ModelType")
 ScrapeItem = TypeVar("ScrapeItem")
 
 
-# TODO: how to structure this file and helpers in general. Or use a class?
-
-
 def parse_unzip_url(url: str) -> DataFrameOrNone:
     """Request xml url and parse the contents."""
     if not validate_url(url):
@@ -133,8 +130,6 @@ def filter_existing_start_urls(
     return [{"url": i} for i in start_urls_missing]
 
 
-# SCRAPE_URLS_FILE
-# EVENTS_SITEMAP_XML_FILE
 async def get_scrape_urls_from_source(
     redis_pool,
     data_source: DataSourceUrls,
@@ -421,7 +416,6 @@ async def dump_scrape_items(
     write_scrape_items_to_jl(data, file=jl_file)
 
 
-# SCRAPE_ITEMS_FILE
 def write_scrape_items_to_jl(
     data: List[ScrapeItem],
     file: Path,
@@ -433,7 +427,6 @@ def write_scrape_items_to_jl(
             f.write(json.dumps(item) + "\n")
 
 
-# SCRAPE_ITEMS_FILE
 def read_scrape_items_from_file(file: Path) -> List[ScrapeItem]:
     """Read from scrape_items file."""
     if not os.path.exists(file):
