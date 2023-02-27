@@ -15,7 +15,7 @@ from sqlalchemy import delete, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ...models.main import UUIDModel
-from ...models.scrape_update import ScrapeUpdate
+from ...models.scrape.scrape_update import ScrapeUpdate
 from ...types import CreateType, ModelType, PatchType
 
 logger = logging.getLogger(__name__)

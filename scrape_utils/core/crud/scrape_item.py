@@ -7,7 +7,7 @@ from uuid import UUID
 
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from ...models.scrape_update import ScrapeUpdate
+from ...models.scrape.scrape_update import ScrapeUpdate
 from ...types import ModelType, PatchType
 from . import BaseCRUD
 

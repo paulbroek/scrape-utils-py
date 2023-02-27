@@ -37,18 +37,33 @@ MAX_CONNECTIONS: Final[int] = 100
 ModelType = TypeVar("ModelType")
 ScrapeItem = TypeVar("ScrapeItem")
 
+USER_AGENT: Final[
+    str
+] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36"
+
+XML_READ_OPTIONS: Final[dict] = {"User-Agent": USER_AGENT}
+
 
 def parse_unzip_url(url: str) -> DataFrameOrNone:
     """Request xml url and parse the contents."""
     if not validate_url(url):
         raise ValueError(INVALID_URL)
-    response = requests.get(url, timeout=10)
-    if response.status_code == status.HTTP_200_OK:
-        with gzip.GzipFile(fileobj=io.BytesIO(response.content)) as gz:
-            df = pd.read_xml(gz)
-        return df
+    # logger.info(f"{url=}")
 
-    return None
+    df: DataFrameOrNone = None
+    # some websites compress the sitemap .xml files
+    if url.endswith(".gz"):
+        response = requests.get(url, timeout=10, headers=XML_READ_OPTIONS)
+        if response.status_code == status.HTTP_200_OK:
+            with gzip.GzipFile(fileobj=io.BytesIO(response.content)) as gz:
+                df = pd.read_xml(gz, storage_options=XML_READ_OPTIONS)
+            return df
+
+        raise Exception(f"{response.status_code=}")
+
+    df = pd.read_xml(url, storage_options=XML_READ_OPTIONS)
+
+    return df
 
 
 def read_sitemap_base(url: str) -> DataFrameOrNone:
@@ -58,7 +73,9 @@ def read_sitemap_base(url: str) -> DataFrameOrNone:
 
     logger.info(f"{url=}")
     try:
-        df: pd.DataFrame | pd.Series = pd.read_xml(url)
+        df: pd.DataFrame | pd.Series = pd.read_xml(
+            url, storage_options=XML_READ_OPTIONS
+        )
 
         if isinstance(df, pd.Series):
             raise Exception("should be dataframe")

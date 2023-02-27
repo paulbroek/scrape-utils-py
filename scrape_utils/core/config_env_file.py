@@ -16,9 +16,11 @@ from .settings import ENV_FILE_PATTERN
 logger = get_create_logger(cmdLevel=logging.INFO, color=1)
 
 
-def log_python_env(devEnv: devEnvs) -> None:
+def log_python_env(devEnv: devEnvs, env_file: Path) -> None:
     """Log what python_env is set."""
-    msg: str = f"running in {devEnv.name} mode"
+    msg: str = (
+        f"running in {devEnv.name} mode. config loaded from: {env_file.as_posix()}"
+    )
 
     if devEnv == devEnvs.PROD:
         logger.warning(msg)
@@ -27,40 +29,41 @@ def log_python_env(devEnv: devEnvs) -> None:
 
 
 def config_env(override_pytest: bool = False) -> Tuple[devEnvs, Path]:
-    PYTHON_ENV_STR: Final[str] = getenv("PYTHON_ENV", "").upper()
-    if not PYTHON_ENV_STR:
+    """Configure the environment fils to load for set PYTHON_ENV."""
+    python_env_str: Final[str] = getenv("PYTHON_ENV", "").upper()
+    if not python_env_str:
         raise ValueError("PYTHON_ENV should be set")
 
-    if PYTHON_ENV_STR not in dict(devEnvs.__members__):
-        raise ValueError(f"{PYTHON_ENV_STR=} not in {list(devEnvs.__members__.keys())}")
+    if python_env_str not in dict(devEnvs.__members__):
+        raise ValueError(f"{python_env_str=} not in {list(devEnvs.__members__.keys())}")
 
-    PYTHON_ENV: devEnvs = devEnvs[PYTHON_ENV_STR]
+    python_env: devEnvs = devEnvs[python_env_str]
 
     # even in PROD, always use TEST when pytest is present
     if "pytest" in modules and not override_pytest:
         logger.info(
-            f"requested {PYTHON_ENV.name} env, but `pytest` is in modules, so using TEST env"
+            f"requested {python_env.name} env, but `pytest` is in modules, so using TEST env"
         )
-        PYTHON_ENV = devEnvs.TEST
+        python_env = devEnvs.TEST
 
-    ENV_DIR: Final[str] = getenv("ENV_DIR", "")
-    if not ENV_DIR:
+    env_dir: Final[str] = getenv("ENV_DIR", "")
+    if not env_dir:
         raise ValueError("ENV_DIR should be set")
 
-    ENV_FILE_PATH: Final[Path] = Path(ENV_DIR)
-    if not ENV_FILE_PATH.exists():
-        raise FileNotFoundError(f"{ENV_FILE_PATH=} not found")
+    env_file_path: Final[Path] = Path(env_dir)
+    if not env_file_path.exists():
+        raise FileNotFoundError(f"{env_file_path=} not found")
 
     # this .env file will be used in module
-    ENV_FILE_NAME: Final[str] = ENV_FILE_PATTERN.format(PYTHON_ENV.name.lower())
-    ENV_FILE: Final[Path] = ENV_FILE_PATH / ENV_FILE_NAME
+    env_file_name: Final[str] = ENV_FILE_PATTERN.format(python_env.name.lower())
+    env_file: Final[Path] = env_file_path / env_file_name
 
-    if not ENV_FILE.exists():
-        raise FileNotFoundError(f"{ENV_FILE=} not found")
+    if not env_file.exists():
+        raise FileNotFoundError(f"{env_file=} not found")
 
-    log_python_env(PYTHON_ENV)
+    log_python_env(python_env, env_file)
 
-    return PYTHON_ENV, ENV_FILE
+    return python_env, env_file
 
 
 PYTHON_ENV, ENV_FILE = config_env()
