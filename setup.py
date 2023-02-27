@@ -18,7 +18,7 @@ requires: Final[List[str]] = [
 
 setup(
     name="scrape_utils",
-    version="0.0.1",
+    version="0.0.3",
     description="Scrape utility package: filters, caching, proxies, ..",
     url="git@github.com:paulbroek/scrape-utils-py.git",
     author="Paul Broek",
