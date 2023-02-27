@@ -123,13 +123,12 @@ def parse_dict_to_model(
 
 
 def filter_existing_start_urls(
-    start_urls: List[SitemapRecord], db_connection_str: str, instance=None
+    db_connection_str: str, start_urls: List[SitemapRecord], model=None
 ) -> List[SitemapRecord]:
-    """Filter out existing start urls, that exist in pg."""
-    assert instance is not None
+    """Filter out existing start urls that exist in pg."""
+    assert model is not None
     # get all urls from pg
-
-    q = select(instance.url)
+    q = select(model.url)
     session = get_session(db_connection_str, echo=False)
     res = list(session.execute(q).scalars().fetchall())
 
@@ -151,8 +150,8 @@ async def get_scrape_urls_from_source(
     redis_pool,
     data_source: DataSourceUrls,
     db_connection_str: str,
-    random,
-    maxn,
+    random: bool,
+    maxn: Optional[int],
     collection,
     scrape_urls_file=None,
     events_sitemap_xml_file=None,

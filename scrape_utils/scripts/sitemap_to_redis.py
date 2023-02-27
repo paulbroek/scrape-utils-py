@@ -40,6 +40,7 @@ from scrape_utils.models.redis.helpers import (delete_sitemap_key,
                                                read_sitemap_base,
                                                sitemap_record_from_row)
 from scrape_utils.utils import chunked_list, get_create_event_loop
+from scrape_utils.utils.typer import collection_validator
 
 app = typer.Typer(pretty_exceptions_short=False)
 loop = get_create_event_loop()
@@ -51,27 +52,6 @@ logger = get_create_logger(
 
 DataFrameOrNone = Optional[pd.DataFrame]
 MAX_BATCH_SIZE: Final[int] = 2_000
-
-
-def collection_validator(library_name: str, collection_member: str) -> CollectionBase:
-    """Import collection dynamically from custom package."""
-    try:
-        redis_module = importlib.import_module(f"{library_name}.models.redis")
-    except ModuleNotFoundError:
-        raise typer.BadParameter(
-            f"{library_name} has no `models.redis.Collection` class"
-        )
-
-    collection_class = redis_module.Collection
-
-    try:
-        collection = getattr(collection_class, collection_member)
-    except AttributeError:
-        raise typer.BadParameter(
-            f"{collection_class=} has no attribute `{collection_member}`. available members: {list(collection_class.__members__)}"
-        )
-
-    return collection
 
 
 @app.command()
