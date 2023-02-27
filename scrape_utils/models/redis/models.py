@@ -31,7 +31,7 @@ class CollectionBase(str, Enum):
     pass
 
 
-class ScrapeItem(BaseModel):
+class ScrapeItemBase(BaseModel):
     # question: want to type enforce during scrape process
     # or dump raw to redis, and parse later?
     # item: ScrapeBase
