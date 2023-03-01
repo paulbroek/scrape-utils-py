@@ -24,6 +24,7 @@ from yapic import json  # type: ignore[import]
 
 from ...cache_http.helpers import get_start_urls_from_pg_cache
 from ...core.settings import REDIS_SITEMAP_KEY_FORMAT, START_URLS_KEY
+from ...types import ModelType, ScrapeItemType
 from .models import (CollectionBase, DataSourceScrapeItems, DataSourceUrls,
                      SitemapRecord, UrlRecord)
 
@@ -34,8 +35,8 @@ DataFrameOrNone = Optional[pd.DataFrame]
 INVALID_URL: Final[str] = "Invalid URL"
 MAX_CONNECTIONS: Final[int] = 100
 
-ModelType = TypeVar("ModelType")
-ScrapeItem = TypeVar("ScrapeItem")
+# ModelType = TypeVar("ModelType")
+# ScrapeItem = TypeVar("ScrapeItem")
 
 USER_AGENT: Final[
     str
@@ -317,8 +318,11 @@ async def rem_none_items(client: aioredis.Redis, items_key: str) -> None:
 
 
 async def get_redis_scrape_items(
-    client: aioredis.Redis, items_key: str, n: int
-) -> List[ScrapeItem]:
+    client: aioredis.Redis,
+    items_key: str,
+    n: int
+    # ) -> List[ScrapeItemType]:
+) -> List[dict]:
     """Get scrape_items from redis."""
     assert n > 0 or n == -1, f"{n=}"
     # n=1 should return one item
@@ -330,7 +334,8 @@ async def get_redis_scrape_items(
 
     res: List[str] = await client.lrange(items_key, 0, endRange)
 
-    items: List[ScrapeItem] = [json.loads(i) for i in res]
+    # items: List[ScrapeItemType] = [json.loads(i) for i in res]
+    items: List[dict] = [json.loads(i) for i in res]
     items = [i for i in items if i is not None]
 
     return items
@@ -342,11 +347,12 @@ async def get_scrape_items(
     jl_file: Path,
     data_source: DataSourceScrapeItems,
     n: int,
-) -> List[ScrapeItem]:
+    # ) -> List[ScrapeItemType]:
+) -> List[dict]:
     """Get scrape_items from data source."""
     match data_source:
         case DataSourceScrapeItems.redis:
-            res: List[ScrapeItem] = await get_redis_scrape_items(client, items_key, n=n)
+            res: List[dict] = await get_redis_scrape_items(client, items_key, n=n)
 
         case DataSourceScrapeItems.jl_file:
             res = read_scrape_items_from_file(jl_file)
@@ -358,14 +364,17 @@ async def get_scrape_items(
 
     logger.info(f"read {len(res):,} items from {data_source.name}")
 
-    # items: List[ScrapeItem] = [UrlRecord(**i) for i in res]
+    # items: List[ScrapeItemType] = [UrlRecord(**i) for i in res]
 
     return res
 
 
 async def pop_scrape_items(
-    client: aioredis.Redis, items_key: str, n: int
-) -> Optional[List[ScrapeItem]]:
+    client: aioredis.Redis,
+    items_key: str,
+    n: int
+    # ) -> Optional[List[ScrapeItemType]]:
+) -> Optional[List[dict]]:
     """Pop scrape items from redis list.
 
     `n` is required so that new incoming items are not deleted
@@ -381,7 +390,8 @@ async def pop_scrape_items(
     ITEMS: str = "item" if len(res) == 1 else "items"
     logger.debug(f"popped {len(res):,} {ITEMS} from `{items_key}`")
 
-    items: List[ScrapeItem] = [json.loads(i) for i in res]
+    # items: List[ScrapeItemType] = [json.loads(i) for i in res]
+    items: List[dict] = [json.loads(i) for i in res]
     items = [i for i in items if i is not None]
 
     return items
@@ -433,7 +443,7 @@ async def dump_scrape_items(
 
 
 def write_scrape_items_to_jl(
-    data: List[ScrapeItem],
+    data: List[ScrapeItemType],
     file: Path,
 ) -> None:
     """Write scrape_items to .jl file."""
@@ -443,7 +453,8 @@ def write_scrape_items_to_jl(
             f.write(json.dumps(item) + "\n")
 
 
-def read_scrape_items_from_file(file: Path) -> List[ScrapeItem]:
+# def read_scrape_items_from_file(file: Path) -> List[ScrapeItemType]:
+def read_scrape_items_from_file(file: Path) -> List[dict]:
     """Read from scrape_items file."""
     if not os.path.exists(file):
         raise FileNotFoundError(f"{file=} not found.")
