@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi import status as http_status
 
-from ....models.main import StatusMessage
+from ...models.main import StatusMessage
 from . import HttpCacheItem, HttpCacheItemPatch, HttpCacheItemRead
 from .crud import CacheCRUD
 from .dependencies import get_cache_crud

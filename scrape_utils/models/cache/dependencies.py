@@ -1,7 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ....core.db import get_async_session, yield_async_Session
+from ...core.db import get_async_session, yield_async_Session
 from .crud import CacheCRUD
 
 
