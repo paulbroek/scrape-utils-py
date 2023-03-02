@@ -290,22 +290,18 @@ async def push_sitemap_record_to_redis(
     await client.zadd(sitemap_redis_key, {item.url: item.lastmod.timestamp()})
 
 
-async def push_redis_to_scrape(client: aioredis.Redis, item: UrlRecord | dict) -> None:
+async def push_redis_to_scrape(
+    client: aioredis.Redis, item: UrlRecord | dict, noPriority: bool = True
+) -> None:
     """Push to_scrape items to redis list."""
     if isinstance(item, UrlRecord):
         item = item.dict()
 
+    if noPriority:
+        await client.lpush(START_URLS_KEY, json.dumps(item))
+        return
+
     await client.rpush(START_URLS_KEY, json.dumps(item))
-
-
-async def priority_push_redis_to_scrape(
-    client: aioredis.Redis, item: UrlRecord | dict
-) -> None:
-    """Push to left side of to_scrape items. Will be scraped first."""
-    if isinstance(item, UrlRecord):
-        item = item.dict()
-
-    await client.lpush(START_URLS_KEY, json.dumps(item))
 
 
 ############################
@@ -402,9 +398,9 @@ async def push_scrape_item(
 ) -> None:
     """Push scrape_item to redis list.
 
-    Normally this happens in side scraper, but for testing purposes this method
-    is also neccesary
+    Normally this happens inside scraper, only use this method for API / testing
     """
+    assert isinstance(item, dict), f"{type(item)=}"
     try:
         json_str: str = json.dumps(item)
     except json.JsonEncodeError:
