@@ -52,7 +52,6 @@ from scrape_utils.db.helpers import filter_only_new_start_urls
 from scrape_utils.models.redis import (CollectionBase, DataSourceUrls,
                                        SitemapRecord)
 from scrape_utils.models.redis.helpers import (delete_redis_keys,
-                                               filter_existing_start_urls,
                                                get_scrape_urls_from_source,
                                                push_redis_to_scrape)
 from scrape_utils.utils import chunked_list, get_create_event_loop
@@ -140,7 +139,7 @@ def main(
 
     DATA_PATH: Final[Path] = Path(settings.data_dir)
     SCRAPE_URLS_FILE: Final[Path] = DATA_PATH / "scrape_urls.jl"
-    SCRAPE_ITEMS_FILE: Final[Path] = DATA_PATH / "scrape_items.jl"
+    # SCRAPE_ITEMS_FILE: Final[Path] = DATA_PATH / "scrape_items.jl"
 
     EVENTS_SITEMAP_XML_FILE: Final[Path] = DATA_PATH / "sw_events_1.xml"
 
