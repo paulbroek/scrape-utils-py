@@ -297,6 +297,8 @@ async def push_redis_to_scrape(
     if isinstance(item, UrlRecord):
         item = item.dict()
 
+    # TODO: check valid url format
+
     if noPriority:
         await client.lpush(START_URLS_KEY, json.dumps(item))
         return
