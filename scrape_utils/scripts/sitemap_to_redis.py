@@ -93,6 +93,9 @@ def main(
     settings_module = importlib.import_module(f"{library_name}.core.settings")
     DOMAIN: str = settings_module.DOMAIN
     SITEMAP_FORMAT: str = settings_module.SITEMAP_FORMAT
+    MAKE_SINGULAR: Final[bool] = getattr(
+        settings_module, "SITEMAP_KEY_MAKE_SINGULAR", False
+    )
 
     redis_pool: aioredis.ConnectionPool = get_redis_pool(settings.redis_url)
 
@@ -101,7 +104,8 @@ def main(
     async def _main() -> Optional[List[SitemapRecord]]:
         """Implement main loop."""
         SITEMAP_URL: Final[str] = SITEMAP_FORMAT.format(
-            domain=DOMAIN, collection=collection.name
+            domain=DOMAIN,
+            collection=collection.name if not MAKE_SINGULAR else collection.name[:-1],
         )
 
         res: DataFrameOrNone = read_sitemap_base(SITEMAP_URL)

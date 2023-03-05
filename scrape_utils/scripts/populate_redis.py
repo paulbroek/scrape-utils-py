@@ -144,6 +144,10 @@ def main(
 
     EVENTS_SITEMAP_XML_FILE: Final[Path] = DATA_PATH / "sw_events_1.xml"
 
+    MAKE_SINGULAR: Final[bool] = getattr(
+        settings_module, "SITEMAP_KEY_MAKE_SINGULAR", False
+    )
+
     collection: CollectionBase = collection_validator(library_name, collection_member)
 
     async def _main() -> Optional[List[SitemapRecord]]:
@@ -157,6 +161,7 @@ def main(
             random=random,
             maxn=maxn,
             collection=collection,
+            collection_as_singular=MAKE_SINGULAR,
             reverse=False,
         )
 

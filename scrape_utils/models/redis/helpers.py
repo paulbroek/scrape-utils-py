@@ -156,6 +156,7 @@ async def get_scrape_urls_from_source(
     collection,
     scrape_urls_file=None,
     events_sitemap_xml_file=None,
+    collection_as_singular=False,
     reverse=False,
 ) -> List[SitemapRecord]:
     """Get scrape urls from source."""
@@ -199,7 +200,11 @@ async def get_scrape_urls_from_source(
                 # TODO: use pipeline to have real async benefits
 
                 records: List[SitemapRecord] = await get_sitemap_items(
-                    client, collection, maxn, reverse=reverse
+                    client,
+                    collection,
+                    maxn,
+                    reverse=reverse,
+                    collection_as_singular=collection_as_singular,
                 )
 
                 logger.info(f"{records[:2]=}")
@@ -232,11 +237,14 @@ async def get_sitemap_items(
     client: aioredis.Redis,
     collection: CollectionBase,
     n: Optional[int],
+    collection_as_singular: bool = False,
     reverse: bool = False,
 ) -> List[SitemapRecord]:
     """Get sitemap items from redis."""
     sitemap_redis_key: Final[str] = REDIS_SITEMAP_KEY_FORMAT.format(
         collection=collection.name
+        if not collection_as_singular
+        else collection.name[:-1]
     )
 
     assert await client.exists(

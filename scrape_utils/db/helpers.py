@@ -26,7 +26,8 @@ def filter_only_new_start_urls(
 
     # https://docs.sqlalchemy.org/en/14/errors.html#error-3o7r
     engine = get_engine(db_connection_str, future=False)
-    query: str = "SELECT uuid, url, updated_at, time_start FROM {table}".format(
+    # query: str = "SELECT uuid, url, updated_at, time_start FROM {table}".format(
+    query: str = "SELECT uuid, url, updated_at FROM {table}".format(
         table=table
     )
     # if onlyFutureRows:
