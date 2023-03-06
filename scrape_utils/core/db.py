@@ -11,17 +11,17 @@ from sqlalchemy.orm import sessionmaker
 from sqlmodel import Session, SQLModel, create_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from .settings import PG_POOL_SIZE
+from .settings import PG_POOL_SIZE_DEFAULT
 
 logger = logging.getLogger(__name__)
 
 
-def get_async_engine(async_connection_str: str):
+def get_async_engine(async_connection_str: str, pool_size: int = PG_POOL_SIZE_DEFAULT):
     async_engine = create_async_engine(
         async_connection_str,
         echo=False,
         future=True,
-        pool_size=PG_POOL_SIZE,
+        pool_size=pool_size,
     )
 
     return async_engine
@@ -33,9 +33,11 @@ async def init_db(async_connection_str: str):
         await conn.run_sync(SQLModel.metadata.create_all)
 
 
-def get_async_session(async_connection_str: str) -> sessionmaker:
+def get_async_session(
+    async_connection_str: str, pool_size: int = PG_POOL_SIZE_DEFAULT
+) -> sessionmaker:
     async_session = sessionmaker(
-        bind=get_async_engine(async_connection_str),
+        bind=get_async_engine(async_connection_str, pool_size=pool_size),
         class_=AsyncSession,
         expire_on_commit=False,
     )

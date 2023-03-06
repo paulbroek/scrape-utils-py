@@ -330,7 +330,11 @@ class CategoryItemCRUD(Generic[ModelType]):
         # Get all existing items that match the list of names
         # query = select(self.model).where(self.model.name.in_([d.name for d in data]))
         name_col = self.model.__table__.c.name
-        query = select(self.model).where(name_col.in_([d.name for d in data]))
+        # attr_col = getattr(self.upsertKey
+        # query = select(self.model).where(name_col.in_([d.name for d in data]))
+        query = select(self.model).where(
+            name_col.in_([getattr(d, self.upsertKey) for d in data])
+        )
         existing_instances = await self.session.execute(query)
         existing_instances = existing_instances.scalars().all()
 
