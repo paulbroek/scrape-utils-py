@@ -302,6 +302,7 @@ async def push_redis_to_scrape(
     client: aioredis.Redis, item: UrlRecord | dict, noPriority: bool = True
 ) -> None:
     """Push to_scrape items to redis list."""
+    assert isinstance(item, (UrlRecord, dict)), f"{type(item)=}"
     if isinstance(item, UrlRecord):
         item = item.dict()
 
