@@ -5,9 +5,11 @@ Main utilify functions for scrape-utils
 import asyncio
 
 import numpy as np
+import uvloop
 
 
 def get_create_event_loop():
+    uvloop.install()
     try:
         return asyncio.get_running_loop()
     except RuntimeError:

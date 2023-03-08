@@ -74,7 +74,7 @@ class FetchApp(Generic[ScrapeItemType]):
                 if item is None:
                     continue
 
-                logger.info(
+                logger.debug(
                     f"got '{item['type']}' item from redis. url={item['item']['url']}"
                 )
 

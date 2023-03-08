@@ -11,7 +11,7 @@ from uuid import UUID
 
 from fastapi import HTTPException
 from fastapi import status as http_status
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ...models.main import UUIDModel
@@ -272,6 +272,12 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
         await self.session.commit()
 
         return True
+
+    async def nitem(self) -> Optional[int]:
+        """Return the number of items for the model in the database."""
+        query = select(func.count()).select_from(self.model)
+        result = await self.session.execute(query)
+        return result.scalar()
 
 
 class CategoryItemCRUD(Generic[ModelType]):

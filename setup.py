@@ -13,13 +13,14 @@ requires: Final[List[str]] = [
     "requests",
     "python-dotenv",
     "sqlalchemy-utils",
+    "uvloop",
 ]
 
 # requires: Final[List[str]] = []
 
 setup(
     name="scrape_utils",
-    version="0.0.6",
+    version="0.0.7",
     description="Scrape utility package: filters, caching, proxies, ..",
     url="git@github.com:paulbroek/scrape-utils-py.git",
     author="Paul Broek",
