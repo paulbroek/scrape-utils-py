@@ -243,8 +243,8 @@ async def get_sitemap_items(
     """Get sitemap items from redis."""
     sitemap_redis_key: Final[str] = REDIS_SITEMAP_KEY_FORMAT.format(
         collection=collection.name
-        if not collection_as_singular
-        else collection.name[:-1]
+        # if not collection_as_singular
+        # else collection.name[:-1]
     )
 
     assert await client.exists(
@@ -295,7 +295,9 @@ async def push_sitemap_record_to_redis(
         collection=collection.name
     )
     assert isinstance(item, SitemapRecord)
-    await client.zadd(sitemap_redis_key, {item.url: item.lastmod.timestamp()})
+    to_add: dict = {item.url: item.lastmod.timestamp()}
+    # logger.info(f"{to_add=}")
+    await client.zadd(sitemap_redis_key, to_add)
 
 
 async def push_redis_to_scrape(

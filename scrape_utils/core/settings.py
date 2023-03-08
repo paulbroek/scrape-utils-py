@@ -9,3 +9,5 @@ REDIS_SITEMAP_KEY_FORMAT: Final[str] = "sitemap-{collection}"
 PG_POOL_SIZE_DEFAULT: Final[int] = 10
 
 ENV_FILE_PATTERN: Final[str] = ".env.{}"
+
+REQUIRED_SOFT_ULIMIT: Final[int] = 10_000

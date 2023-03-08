@@ -54,7 +54,7 @@ from scrape_utils.models.redis import (CollectionBase, DataSourceUrls,
 from scrape_utils.models.redis.helpers import (delete_redis_keys,
                                                get_scrape_urls_from_source,
                                                push_redis_to_scrape)
-from scrape_utils.utils import chunked_list, get_create_event_loop
+from scrape_utils.utils import chunked_list, get_create_event_loop, set_ulimit
 from scrape_utils.utils.typer import collection_validator
 
 # it already loaded in scrape_meetup main module
@@ -125,6 +125,7 @@ def main(
     ),
 ):
     """Implement main app."""
+    set_ulimit()
     # load setting modules dynamically
     try:
         library = importlib.import_module(library_name)

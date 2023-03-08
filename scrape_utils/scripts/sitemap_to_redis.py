@@ -39,7 +39,7 @@ from scrape_utils.models.redis.helpers import (delete_sitemap_key,
                                                push_sitemap_record_to_redis,
                                                read_sitemap_base,
                                                sitemap_record_from_row)
-from scrape_utils.utils import chunked_list, get_create_event_loop
+from scrape_utils.utils import chunked_list, get_create_event_loop, set_ulimit
 from scrape_utils.utils.typer import collection_validator
 
 app = typer.Typer(pretty_exceptions_short=False)
@@ -75,6 +75,18 @@ def main(
         "-m",
         help="max records to push to redis",
     ),
+    replace_url_selector: Optional[str] = typer.Option(
+        None,
+        "--replace_url_selector",
+        "-s",
+        help="optional pattern to transform sitemap url before pushing to redis",
+    ),
+    replace_url_replacement: Optional[str] = typer.Option(
+        None,
+        "--replace_url_replacement",
+        "-r",
+        help="str to be replaced with",
+    ),
     dryrun: bool = typer.Option(
         False,
         "--dryrun",
@@ -103,6 +115,8 @@ def main(
 
     async def _main() -> Optional[List[SitemapRecord]]:
         """Implement main loop."""
+        set_ulimit()
+
         SITEMAP_URL: Final[str] = SITEMAP_FORMAT.format(
             domain=DOMAIN,
             collection=collection.name if not MAKE_SINGULAR else collection.name[:-1],
@@ -145,6 +159,15 @@ def main(
         logger.info(
             f"got {len(final_df):,} `{collection.name}` sitemap urls from {DOMAIN}"
         )
+
+        if replace_url_selector is not None:
+            assert replace_url_replacement is not None
+            # replace all urls in dataframe
+            final_df["url"] = final_df.url.str.replace(
+                replace_url_selector, replace_url_replacement
+            )
+
+        logger.info(f"head final_df: \n\n{final_df.head(3)}")
 
         # sitemap_urls: List[SitemapRecord] = final_df.to_dict(orient="records").map(SitemapRecord)
         sitemap_urls: List[SitemapRecord] = final_df.apply(
