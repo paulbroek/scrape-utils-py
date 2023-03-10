@@ -104,6 +104,7 @@ def sitemap_record_from_row(row: pd.Series) -> SitemapRecord:
     return SitemapRecord(**str_row)
 
 
+# TODO: move out of redis/helpers.py
 def parse_dict_to_model(
     item: dict, model_class: ModelType, from_json: str = "from_json"
 ) -> Optional[ModelType]:
