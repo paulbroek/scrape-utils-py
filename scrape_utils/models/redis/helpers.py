@@ -323,6 +323,10 @@ async def push_redis_to_scrape(
 ############################
 
 
+async def nscrape_item(client: aioredis.Redis, items_key: str) -> int:
+    return await client.llen(items_key)
+
+
 async def rem_none_items(client: aioredis.Redis, items_key: str) -> None:
     await client.lrem(items_key, 0, "null")
 
@@ -482,7 +486,7 @@ async def delete_redis_keys(client: aioredis.Redis, keys: Optional[List[str]] = 
     """Delete list of keys in redis."""
     # delete all keys
     if keys is None:
-        logger.warning("deleting KEYS keys")
+        logger.warning(f"deleting all keys")
         keys = await client.keys("*")
 
     for key in keys:

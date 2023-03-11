@@ -8,8 +8,6 @@ logger = logging.getLogger(__name__)
 
 DATETIME_FIELDS_BASE: Final[Set[str]] = set(
     [
-        # "time_start",
-        # "time_end",
         "last_scraped",
         "created_at",
         "updated_at",
@@ -20,7 +18,7 @@ DATETIME_FIELDS_BASE: Final[Set[str]] = set(
 class Base(SQLModel):
     """Base model.
 
-    Only implements helper functions
+    Only implements helper functions for base scrape model
     """
 
     @classmethod
@@ -29,7 +27,6 @@ class Base(SQLModel):
     ) -> dict:
         """Parse dates from isoformat to datetime."""
         # if present, cast isoformat dates to datetime
-        # all_data = json_data | kwargs
         json_data |= kwargs
 
         dt_fields: Set[str] = DATETIME_FIELDS_BASE | set(dt_fields_extra)
