@@ -44,12 +44,11 @@ def get_settings_by_module_name(
     module_name: str, module_dir_format: str = MODULE_DIR_FORMAT
 ):
     """Get pydantic settings schema by module name."""
-    MODULE_NAME: Final[str] = "scrape_goodreads"
     os.environ["ENV_DIR"] = module_dir_format.format(module_name)
     try:
-        settings = importlib.import_module(MODULE_NAME).settings
+        settings = importlib.import_module(module_name).settings
     except ModuleNotFoundError:
-        logger.error(f"could not import module `{MODULE_NAME}`")
+        logger.error(f"could not import module `{module_name}`")
         raise
 
     return settings
