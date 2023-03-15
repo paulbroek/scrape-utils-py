@@ -14,4 +14,4 @@ REQUIRED_SOFT_ULIMIT: Final[int] = 10_000
 
 MODULE_DIR_FORMAT: Final[
     str
-] = "/home/paul/repos/misc-scraping/misc_scraping/{MODULE_NAME}/config"
+] = "/home/paul/repos/misc-scraping/misc_scraping/{module_name}/config"
