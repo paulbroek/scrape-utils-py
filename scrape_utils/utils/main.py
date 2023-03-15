@@ -3,13 +3,16 @@
 Main utilify functions for scrape-utils
 """
 import asyncio
+import importlib
 import logging
+import os
 import resource
+from typing import Final
 
 import numpy as np
 import uvloop
 
-from ..core.settings import REQUIRED_SOFT_ULIMIT
+from ..core.settings import MODULE_DIR_FORMAT, REQUIRED_SOFT_ULIMIT
 
 logger = logging.getLogger(__name__)
 
@@ -35,3 +38,18 @@ def set_ulimit() -> None:
         logger.warning(f"{soft_limit=:,} < {REQUIRED_SOFT_ULIMIT=:,}. Increasing it")
     # increase it
     resource.setrlimit(resource.RLIMIT_NOFILE, (REQUIRED_SOFT_ULIMIT, hard_limit))
+
+
+def get_settings_by_module_name(
+    module_name: str, module_dir_format: str = MODULE_DIR_FORMAT
+):
+    """Get pydantic settings schema by module name."""
+    MODULE_NAME: Final[str] = "scrape_goodreads"
+    os.environ["ENV_DIR"] = module_dir_format.format(module_name)
+    try:
+        settings = importlib.import_module(MODULE_NAME).settings
+    except ModuleNotFoundError:
+        logger.error(f"could not import module `{MODULE_NAME}`")
+        raise
+
+    return settings
