@@ -70,4 +70,4 @@ def config_env(
     return python_env, env_file
 
 
-PYTHON_ENV, ENV_FILE = config_env()
+# PYTHON_ENV, ENV_FILE = config_env()
