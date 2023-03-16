@@ -6,7 +6,7 @@ import logging
 from os import getenv
 from pathlib import Path
 from sys import modules
-from typing import Final, Tuple
+from typing import Final, Optional, Tuple
 
 from rarc_utils.log import get_create_logger
 
@@ -28,7 +28,9 @@ def log_python_env(devEnv: devEnvs, env_file: Path) -> None:
         logger.info(msg)
 
 
-def config_env(override_pytest: bool = False) -> Tuple[devEnvs, Path]:
+def config_env(
+    env_dir_override: Optional[str] = None, override_pytest: bool = False
+) -> Tuple[devEnvs, Path]:
     """Configure the environment fils to load for set PYTHON_ENV."""
     python_env_str: Final[str] = getenv("PYTHON_ENV", "").upper()
     if not python_env_str:
@@ -50,7 +52,9 @@ def config_env(override_pytest: bool = False) -> Tuple[devEnvs, Path]:
     if not env_dir:
         raise ValueError("ENV_DIR should be set")
 
-    env_file_path: Final[Path] = Path(env_dir)
+    env_file_path: Final[Path] = (
+        Path(env_dir_override) if env_dir_override is not None else Path(env_dir)
+    )
     if not env_file_path.exists():
         raise FileNotFoundError(f"{env_file_path=} not found")
 
