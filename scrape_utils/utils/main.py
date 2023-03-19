@@ -7,12 +7,14 @@ import importlib
 import logging
 import os
 import resource
-from typing import Final
 
 import numpy as np
 import uvloop
 
 from ..core.settings import MODULE_DIR_FORMAT, REQUIRED_SOFT_ULIMIT
+
+# from typing import Final
+
 
 logger = logging.getLogger(__name__)
 
