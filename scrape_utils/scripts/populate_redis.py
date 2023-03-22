@@ -46,7 +46,7 @@ import typer
 from dotenv import load_dotenv
 from rarc_utils.log import get_create_logger
 from redis import asyncio as aioredis
-from scrape_utils.core.config_env_file import ENV_FILE
+from scrape_utils.core.config_env_file import config_env
 from scrape_utils.core.redis_connection import get_redis_pool, redis_connection
 from scrape_utils.db.helpers import filter_only_new_start_urls
 from scrape_utils.models.redis import (CollectionBase, DataSourceUrls,
@@ -56,6 +56,8 @@ from scrape_utils.models.redis.helpers import (delete_redis_keys,
                                                push_redis_to_scrape)
 from scrape_utils.utils import chunked_list, get_create_event_loop, set_ulimit
 from scrape_utils.utils.typer import collection_validator
+
+_, ENV_FILE = config_env()
 
 # it already loaded in scrape_meetup main module
 load_dotenv(ENV_FILE)
@@ -128,12 +130,12 @@ def main(
     set_ulimit()
     # load setting modules dynamically
     try:
-        library = importlib.import_module(library_name)
+        setup_library = importlib.import_module(f"{library_name}.core.setup")
     except ModuleNotFoundError:
         logger.error("please pass valid base library to import")
         return
 
-    settings = library.settings
+    settings = setup_library.settings
     settings_module = importlib.import_module(f"{library_name}.core.settings")
 
     redis_pool: aioredis.ConnectionPool = get_redis_pool(settings.redis_url)
