@@ -30,8 +30,10 @@ from typing import Final, List, Optional
 
 import pandas as pd
 import typer
+from dotenv import load_dotenv
 from rarc_utils.log import get_create_logger
 from redis import asyncio as aioredis
+from scrape_utils.core.config_env_file import config_env
 from scrape_utils.core.redis_connection import get_redis_pool, redis_connection
 from scrape_utils.models.redis import CollectionBase, SitemapRecord
 from scrape_utils.models.redis.helpers import (delete_sitemap_key,
@@ -42,6 +44,10 @@ from scrape_utils.models.redis.helpers import (delete_sitemap_key,
 from scrape_utils.utils import chunked_list, get_create_event_loop, set_ulimit
 from scrape_utils.utils.typer import collection_validator
 
+_, ENV_FILE = config_env()
+
+# it already loaded in scrape_meetup main module
+load_dotenv(ENV_FILE)
 app = typer.Typer(pretty_exceptions_short=False)
 loop = get_create_event_loop()
 
@@ -96,14 +102,12 @@ def main(
     """Implement main app."""
     # load setting modules dynamically
     try:
-        library = importlib.import_module(library_name)
+        setup_library = importlib.import_module(f"{library_name}.core.setup")
     except ModuleNotFoundError:
         logger.error("please pass valid base library to import")
         return
 
-    # settings = library.settings
-    setup_module = importlib.import_module(f"{library_name}.core.setup")
-    settings = setup_module.settings
+    settings = setup_library.settings
     settings_module = importlib.import_module(f"{library_name}.core.settings")
     DOMAIN: str = settings_module.DOMAIN
     SITEMAP_FORMAT: str = settings_module.SITEMAP_FORMAT
