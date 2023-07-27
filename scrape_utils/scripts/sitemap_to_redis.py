@@ -101,7 +101,9 @@ def main(
         logger.error("please pass valid base library to import")
         return
 
-    settings = library.settings
+    # settings = library.settings
+    config_module = importlib.import_module(f"{library_name}.core.config")
+    settings = config_module.Settings
     settings_module = importlib.import_module(f"{library_name}.core.settings")
     DOMAIN: str = settings_module.DOMAIN
     SITEMAP_FORMAT: str = settings_module.SITEMAP_FORMAT
