@@ -102,8 +102,8 @@ def main(
         return
 
     # settings = library.settings
-    config_module = importlib.import_module(f"{library_name}.core.config")
-    settings = config_module.Settings
+    setup_module = importlib.import_module(f"{library_name}.core.setup")
+    settings = setup_module.settings
     settings_module = importlib.import_module(f"{library_name}.core.settings")
     DOMAIN: str = settings_module.DOMAIN
     SITEMAP_FORMAT: str = settings_module.SITEMAP_FORMAT
