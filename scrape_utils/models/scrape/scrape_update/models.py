@@ -15,7 +15,7 @@ Base = declarative_base()
 
 
 class ScrapeUpdateBase(SM_Base):
-    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True, nullable=False)
 
 
 class ScrapeUpdate(Base):
