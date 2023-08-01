@@ -1,7 +1,7 @@
 import uuid as uuid_pkg
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, String, func
+from sqlalchemy import Column, DateTime, Index, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import generic_relationship  # type: ignore[import]
@@ -15,9 +15,12 @@ Base = declarative_base()
 
 
 class ScrapeUpdateBase(SM_Base):
-    created_at: datetime = Field(default_factory=datetime.utcnow, index=True, nullable=False)
+    created_at: datetime = Field(
+        default_factory=datetime.utcnow, index=True, nullable=False
+    )
 
 
+# class ScrapeUpdate(ScrapeUpdateBase, UUIDModel, table=True):
 class ScrapeUpdate(Base):
     __tablename__ = "scrape_updates"
 
@@ -35,6 +38,8 @@ class ScrapeUpdate(Base):
         "polymorphic_identity": "scrape_updates",
         # "concrete": True,
     }
+
+    __table_args__ = (Index("ix_created_at", "created_at"),)
 
 
 class ScrapeUpdateRead(ScrapeUpdateBase, UUIDModel):
