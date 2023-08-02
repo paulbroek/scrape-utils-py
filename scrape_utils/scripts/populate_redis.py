@@ -114,6 +114,11 @@ def main(
         "--filter_only_new",
         help="only push urls with lastmod later than created_at",
     ),
+    # filter_from_csv: str = typer.Option(
+    #     False,
+    #     "--filter_from_csv",
+    #     help="filter out duplicate values from this csv file",
+    # ),
     maxn: Optional[int] = typer.Option(
         None,
         "--maxn",
