@@ -1,6 +1,6 @@
 """populate_redis.py.
 
-Poulate redis with starting urls to scrape
+Populate redis with starting urls to scrape
 
 Optionally remove all existing items from redis, and push a list of new urls,
 so that the scraper will start running
