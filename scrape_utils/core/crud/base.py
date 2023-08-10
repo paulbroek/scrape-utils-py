@@ -222,7 +222,7 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
             instance: ModelType = await self.create(data, **kwargs)
             # logger.info(f"{dir(instance)=}")
             logger.info(
-                f"created {instance.__tablename__} id={self._get_id_attr(instance)}. url={getattr(instance, self.upsertKey)}"
+                f"created {instance.__tablename__} id={self._get_id_attr(instance)}. {self.upsertKey}={getattr(instance, self.upsertKey)}"
             )
             return instance
 
