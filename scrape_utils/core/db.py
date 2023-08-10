@@ -36,6 +36,7 @@ async def init_db(async_connection_str: str):
 def get_async_session(
     async_connection_str: str, pool_size: int = PG_POOL_SIZE_DEFAULT
 ) -> sessionmaker:
+    assert isinstance(async_connection_str, str), f"{type(async_connection_str)=}"
     async_session = sessionmaker(
         bind=get_async_engine(async_connection_str, pool_size=pool_size),
         class_=AsyncSession,
