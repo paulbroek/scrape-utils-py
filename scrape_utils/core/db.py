@@ -47,7 +47,7 @@ def get_async_session(
     #     yield session
 
 
-async def yield_async_Session(async_connection_str: str) -> AsyncGenerator:
+async def yield_async_session(async_connection_str: str) -> AsyncGenerator:
     async_session = get_async_session(async_connection_str)
     async with async_session() as session:
         yield session
