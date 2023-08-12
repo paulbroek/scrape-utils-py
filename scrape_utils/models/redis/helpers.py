@@ -327,6 +327,10 @@ async def nscrape_item(client: aioredis.Redis, items_key: str) -> int:
     return await client.llen(items_key)
 
 
+async def nstart_url(client: aioredis.Redis, items_key: str) -> int:
+    return await client.llen(items_key)
+
+
 async def rem_none_items(client: aioredis.Redis, items_key: str) -> None:
     await client.lrem(items_key, 0, "null")
 
