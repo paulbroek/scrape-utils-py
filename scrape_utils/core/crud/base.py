@@ -188,10 +188,10 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
     async def get(self, model_id: str | UUID) -> ModelType:
         """Get a model instance."""
         assert isinstance(model_id, (str, UUID)), f"{type(model_id)=}"
-        # id_attr = self._id_attr_name()
+        id_attr = self._id_attr_name()
         # logger.info(f"{model_id=}")
-        statement = select(self.model).where(self.model.uuid == model_id)
-        # statement = select(self.model).where(id_attr == model_id)
+        # statement = select(self.model).where(self.model.uuid == model_id)
+        statement = select(self.model).where(id_attr == model_id)
         results = await self.session.execute(statement=statement)
         # logger.info(f"{results=}")
         # logger.info(f"{dir(results)=}")
