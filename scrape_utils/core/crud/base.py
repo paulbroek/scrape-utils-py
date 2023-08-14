@@ -146,7 +146,9 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
         #     else getattr(model, "id")
         # )
 
-        return "uuid" if issubclass(model, UUIDModel) else "id"
+        # return "uuid" if issubclass(model, UUIDModel) else "id"
+        # always use uuid attribute?
+        return "uuid"
 
     @classmethod
     def _get_id_attr(
