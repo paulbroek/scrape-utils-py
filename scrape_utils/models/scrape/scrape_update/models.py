@@ -30,7 +30,9 @@ class ScrapeUpdate(Base):
 
     created_at = Column(DateTime, server_default=func.now())  # current_timestamp()
 
-    scrape_base_id = Column(UUID(as_uuid=True), nullable=False)
+    # scrape_base_id = Column(UUID(as_uuid=True), nullable=False)
+    # to support both UUID and string id types
+    scrape_base_id = Column(String, nullable=False)
     scrape_base = generic_relationship(scrape_type, scrape_base_id)
 
     __mapper_args__ = {
