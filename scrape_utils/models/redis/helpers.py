@@ -387,13 +387,13 @@ async def get_scrape_items(
     return res
 
 
-async def pop_scrape_items(
+async def pop_list_items(
     client: aioredis.Redis,
     items_key: str,
     n: int
     # ) -> Optional[List[ScrapeItemType]]:
 ) -> Optional[List[dict]]:
-    """Pop scrape items from redis list.
+    """Pop (scrape) items from redis list.
 
     `n` is required so that new incoming items are not deleted
     """
@@ -415,12 +415,13 @@ async def pop_scrape_items(
     return items
 
 
-async def push_scrape_item(
+async def push_list_item(
     client: aioredis.Redis, items_key: str, item: dict, noPriority=False
 ) -> None:
-    """Push scrape_item to redis list.
+    """Push (scrape) item to redis list.
 
-    Normally this happens inside scraper, only use this method for API / testing
+    Normally this happens inside scraper
+    Can be used for API / testing or custom scraper
     """
     assert isinstance(item, dict), f"{type(item)=}"
     try:

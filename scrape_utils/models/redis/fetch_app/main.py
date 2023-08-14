@@ -13,7 +13,7 @@ from typing import Callable, Generic, List, Optional
 from ....core.redis_connection import get_redis_pool, redis_connection
 from ....types import ScrapeItemType
 from ....utils import get_create_event_loop
-from ...redis.helpers import pop_scrape_items, push_scrape_item
+from ...redis.helpers import pop_list_items, push_list_item
 
 loop = get_create_event_loop()
 
@@ -50,17 +50,18 @@ class FetchApp(Generic[ScrapeItemType]):
         # logger.info(f"{item=}")
         await self.queue.put(item)
 
-    async def _fetch_scrape_items(self) -> None:
-        """Fetch scrape items from redis.
+    async def _fetch_list_items(self) -> None:
+        """Fetch (scrape) items from redis.
 
-        Make sure to tweak `delay` to a level where redis list does not get depleted. Or other workers have nothing to do
+        Make sure to tweak `delay` to a level where redis list does not get depleted.
+        Else sibling workers have nothing to do
         And in case of failure, all items are gone
         """
         # 1. get item from redis
         while True:
             async with redis_connection(self.redis_pool) as client:
-                # items: List[ScrapeItemType] = await pop_scrape_items(
-                items: Optional[List[dict]] = await pop_scrape_items(
+                # items: List[ScrapeItemType] = await pop_list_items(
+                items: Optional[List[dict]] = await pop_list_items(
                     client, self.items_key, n=1
                 )
 
@@ -74,9 +75,9 @@ class FetchApp(Generic[ScrapeItemType]):
                 if item is None:
                     continue
 
-                logger.debug(
-                    f"got '{item['type']}' item from redis. url={item['item']['url']}"
-                )
+                # logger.debug(
+                #     f"got '{item['type']}' item from redis. url={item['item']['url']}"
+                # )
 
             # 2. add item to queue
             # await queue.put(item)
@@ -85,7 +86,7 @@ class FetchApp(Generic[ScrapeItemType]):
             # 3. delay before fetching the next item
             await asyncio.sleep(self.fetch_delay)
 
-    async def _get_all_items(self):
+    async def _get_all_items(self) -> list:
         """Get all items from asyncio queue."""
         items = []
         while self.queue.qsize() > 0:
@@ -106,7 +107,7 @@ class FetchApp(Generic[ScrapeItemType]):
                 items = await self._get_all_items()
                 async with redis_connection(self.redis_pool) as client:
                     cors = [
-                        push_scrape_item(client, self.items_key, item) for item in items
+                        push_list_item(client, self.items_key, item) for item in items
                     ]
                     await asyncio.gather(*cors)
                 logger.info(f"pushed {len(items):,} queue items back to redis list")
@@ -116,9 +117,13 @@ class FetchApp(Generic[ScrapeItemType]):
             await asyncio.sleep(self.log_interval)
 
     async def continuous_fetch_app(self) -> None:
-        """Other than _main this app fetches scrape_items one by one, upserts to pg, and removes from list if succesful."""
+        """Implement fetch app main loop.
+
+        Other than _main this app fetches scrape_items one by one,
+        upserts to pg, and removes from list if succesful.
+        """
         # start fetching items in the background
-        fetch_task = asyncio.create_task(self._fetch_scrape_items())
+        fetch_task = asyncio.create_task(self._fetch_list_items())
 
         # process items in the queue
         tasks = []
