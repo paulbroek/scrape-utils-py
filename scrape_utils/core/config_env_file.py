@@ -13,7 +13,8 @@ from rarc_utils.log import get_create_logger
 from .config import devEnvs
 from .settings import ENV_FILE_PATTERN
 
-logger = get_create_logger(cmdLevel=logging.INFO, color=1)
+# logger = get_create_logger(cmdLevel=logging.INFO, color=1)
+logger = logging.getLogger(__name__)
 
 
 def log_python_env(devEnv: devEnvs, env_file: Path) -> None:
