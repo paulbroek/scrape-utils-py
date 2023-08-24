@@ -23,11 +23,6 @@ class ScrapeItemCRUD(BaseCRUD):
     def __init__(self, session: AsyncSession, upsertKey="url") -> None:
         super().__init__(session=session, upsertKey=upsertKey)
 
-    # TODO: not sure what is best way to implement this
-    # a new scrape moment means event get insert a new updated item
-    async def add_updated_item(self):
-        raise NotImplementedError
-
     async def patch(self, model_id: str | UUID, data: PatchType, **kwargs) -> ModelType:
         """Patch a scrape_item instance."""
         # logger.info(f"{model_id=}")

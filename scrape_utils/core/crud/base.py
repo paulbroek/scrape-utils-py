@@ -79,7 +79,7 @@ class BaseCRUDABC(ABC, Generic[ModelType]):
 
 
 class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
-    """BaseCRUD class that implements base functionality for CRUD operations of any SQLModel mode."""
+    """BaseCRUD class that implements base functionality for CRUD operations of any SQLModel model."""
 
     # model: Optional[Type[ModelType]] = None
 

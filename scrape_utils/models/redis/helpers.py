@@ -10,7 +10,7 @@ import os
 import urllib
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, Final, List, Optional, Tuple, TypeVar
+from typing import Any, Callable, Dict, Final, List, Optional, Tuple
 
 import pandas as pd
 import requests  # type: ignore[import]
@@ -35,8 +35,6 @@ DataFrameOrNone = Optional[pd.DataFrame]
 INVALID_URL: Final[str] = "Invalid URL"
 MAX_CONNECTIONS: Final[int] = 100
 
-# ModelType = TypeVar("ModelType")
-# ScrapeItem = TypeVar("ScrapeItem")
 
 USER_AGENT: Final[
     str
