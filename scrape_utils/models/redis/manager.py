@@ -45,7 +45,7 @@ class BaseRedisManager(RedisManagerABC):
             connection_pool=redis_pool, max_connections=MAX_REDIS_CONNECTIONS_DEFAULT
         )
 
-    async def push_list_item(
+    async def _push_list_item(
         self, items_key: str, item: dict, noPriority=False
     ) -> None:
         """Push (scrape) item to redis list.
@@ -69,10 +69,26 @@ class BaseRedisManager(RedisManagerABC):
     # async def push_to_scrape(self, items_key: str, item: dict, **kwargs) -> None:
     #     await self.push_list_item(items_key, item, **kwargs)
 
-    async def nlist_item(self, list_key: str) -> int:
+    async def _nlist_item(self, list_key: str) -> int:
         """Return length of redis list item."""
         return await self._client.llen(list_key)
 
-    async def is_set_member(self, set_key: str, set_member_key: str) -> bool:
+    ##################
+    #### HSET methods
+    ##################
+
+    async def _is_set_member(self, set_key: str, set_member_key: str) -> bool:
         """Return if `set_member_key` is member of redis hset."""
-        return await self._client.sismember(set_key, set_member_key)
+        return await self._client.hexists(set_key, set_member_key)
+
+    async def _add_set_member(
+        self, set_key: str, set_member_key: str, value: str
+    ) -> int:
+        assert isinstance(value, str), f"{type(value)=}"
+        return await self._client.hset(set_key, set_member_key, value)
+
+    async def _get_set_member(self, set_key: str, set_member_key: str) -> str | None:
+        return await self._client.hget(set_key, set_member_key)
+
+    async def _del_set_member(self, set_key: str, set_member_key: str) -> int:
+        return await self._client.hdel(set_key, set_member_key)

@@ -30,3 +30,17 @@ class MyBaseSettings(BaseSettings):
     # neccesary to support lru_cache in fastapi dependency injection
     def __hash__(self):
         return hash((type(self),) + tuple(self.__dict__.values()))
+
+
+class APISettings(MyBaseSettings):
+    # RabbitMQ
+    rmq_host: str
+    rmq_port: int
+    rmq_user: str
+    rmq_password: str
+    rmq_url: str
+
+    rmq_publish_queue: str
+    rmq_consume_queue: str
+    rmq_add_row_queue: str
+    rmq_verify_scraped_queue: str

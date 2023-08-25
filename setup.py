@@ -14,6 +14,8 @@ requires: Final[List[str]] = [
     "python-dotenv",
     "sqlalchemy-utils",
     "uvloop",
+    "aio-pika",
+    "pika",
 ]
 
 # requires: Final[List[str]] = []

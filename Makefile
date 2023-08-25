@@ -11,7 +11,11 @@ all: clean
 
 wheel: clean $(PYSRC)
 	python setup.py bdist_wheel --universal
-	echo ../notion-utils-api/base ../notion-utils-api/api ../notion-utils-api/tests | xargs -n 1 cp dist/*.whl
+	echo 	../notion-utils-api/base \
+			../notion-utils-api/api \
+			../notion-utils-api/tests \
+			../misc-scraping/misc_scraping/scrape_youtube/base \
+			../misc-scraping/misc_scraping/scrape_goodreads/base | xargs -n 1 cp dist/*.whl
 
 clean:
 	rm -f $(DIST)/*
