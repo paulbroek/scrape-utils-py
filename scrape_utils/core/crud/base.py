@@ -173,7 +173,7 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
 
         # always add a scrapeUpdate item
         su = ScrapeUpdate(
-            scrape_base_id=instance.uuid, scrape_type=self.model.__tablename__
+            scrape_base_id=str(instance.uuid), scrape_type=self.model.__tablename__
         )
         self.session.add(su)
 
