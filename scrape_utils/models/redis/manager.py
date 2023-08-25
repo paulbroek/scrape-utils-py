@@ -5,7 +5,7 @@ from typing import Coroutine
 from redis import asyncio as aioredis
 from yapic import json
 
-from ...core.config import MyBaseSettings
+from ...core.config import MyBaseSettings, ScrapeSettings
 from ...core.settings import DECODE_RESPONSES, MAX_REDIS_CONNECTIONS_DEFAULT
 
 logger = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ class RedisManagerABC(ABC):
 
 # class BaseRedisManager(RedisManagerABC, Generic[ModelType]):
 class BaseRedisManager(RedisManagerABC):
-    def __init__(self, settings: MyBaseSettings) -> None:
+    def __init__(self, settings: ScrapeSettings) -> None:
         self.settings = settings
         self._client = self.__get_client()
 
@@ -92,3 +92,47 @@ class BaseRedisManager(RedisManagerABC):
 
     async def _del_set_member(self, set_key: str, set_member_key: str) -> int:
         return await self._client.hdel(set_key, set_member_key)
+
+
+class ScrapeRedisManager(BaseRedisManager):
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    ################
+    ### START URLS
+    ################
+    async def push_to_scrape(self, item: dict, **kw) -> None:
+        return await self._push_list_item(
+            self.settings.redis_start_urls_key, item, **kw
+        )
+
+    async def nstart_url(self) -> int:
+        return await self._nlist_item(self.settings.redis_start_urls_key)
+
+    ##################
+    ### SCRAPE ITEMS
+    ##################
+    async def push_item(self, item: dict, **kw) -> None:
+        return await self._push_list_item(self.settings.redis_items_key, item, **kw)
+
+    async def nscrape_item(self) -> int:
+        return await self._nlist_item(self.settings.redis_items_key)
+
+    #########################
+    ### VERIFY SCRAPE ITEMS
+    #########################
+    async def is_verify_scraped_member(self, member_key: str) -> bool:
+        return await self._is_set_member(
+            self.settings.redis_verify_scraped_key, member_key
+        )
+
+    async def add_verify_scraped(self, key: str, value: dict) -> int:
+        return await self._add_set_member(
+            self.settings.redis_verify_scraped_key, key, json.dumps(value)
+        )
+
+    async def get_verify_scraped(self, key: str) -> str | None:
+        return await self._get_set_member(self.settings.redis_verify_scraped_key, key)
+
+    async def del_verify_scraped(self, key: str) -> int:
+        return await self._del_set_member(self.settings.redis_verify_scraped_key, key)
