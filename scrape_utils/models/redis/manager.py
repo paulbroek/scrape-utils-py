@@ -1,11 +1,10 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Coroutine
 
 from redis import asyncio as aioredis
 from yapic import json
 
-from ...core.config import MyBaseSettings, ScrapeSettings
+from ...core.config import ScrapeSettings
 from ...core.settings import DECODE_RESPONSES, MAX_REDIS_CONNECTIONS_DEFAULT
 
 logger = logging.getLogger(__name__)
@@ -101,6 +100,7 @@ class ScrapeRedisManager(BaseRedisManager):
     ################
     ### START URLS
     ################
+
     async def push_to_scrape(self, item: dict, **kw) -> None:
         return await self._push_list_item(
             self.settings.redis_start_urls_key, item, **kw
@@ -112,6 +112,7 @@ class ScrapeRedisManager(BaseRedisManager):
     ##################
     ### SCRAPE ITEMS
     ##################
+
     async def push_item(self, item: dict, **kw) -> None:
         return await self._push_list_item(self.settings.redis_items_key, item, **kw)
 
@@ -121,6 +122,7 @@ class ScrapeRedisManager(BaseRedisManager):
     #########################
     ### VERIFY SCRAPE ITEMS
     #########################
+
     async def is_verify_scraped_member(self, member_key: str) -> bool:
         return await self._is_set_member(
             self.settings.redis_verify_scraped_key, member_key

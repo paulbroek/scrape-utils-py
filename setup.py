@@ -16,6 +16,7 @@ requires: Final[List[str]] = [
     "uvloop",
     "aio-pika",
     "pika",
+    "lz4",
 ]
 
 # requires: Final[List[str]] = []
