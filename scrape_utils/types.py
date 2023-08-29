@@ -4,7 +4,8 @@ General types for scrape-utils.
 """
 from typing import TypeVar
 
-from .models.base import Base
+from .models.base import BaseScrapeUtility as Base
+# from .models.base import Base
 from .models.redis import ScrapeItemBase
 
 # ModelType = TypeVar("ModelType", bound="Base")

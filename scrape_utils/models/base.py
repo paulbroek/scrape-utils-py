@@ -15,7 +15,9 @@ DATETIME_FIELDS_BASE: Final[Set[str]] = set(
 )
 
 
-class Base(SQLModel):
+# class BaseScrapeUtility():
+# class Base(SQLModel):
+class BaseScrapeUtility(SQLModel):
     """Base model.
 
     Only implements helper functions for base scrape model

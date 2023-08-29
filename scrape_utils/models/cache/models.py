@@ -9,6 +9,7 @@ from scrapy.http import Headers
 from sqlalchemy.orm import registry
 from sqlmodel import Field
 
+# from ..scrape import ScrapeBaseMixin
 from ..scrape import ScrapeBase
 
 mapper_registry = registry()
@@ -19,6 +20,7 @@ def kb_size(item) -> int:
 
 
 # class HttpCacheItemBase(BaseModel):
+# class HttpCacheItemBase(ScrapeBaseMixin):
 class HttpCacheItemBase(ScrapeBase):
     status: int = Field(nullable=False)
     url: str = Field(nullable=False, unique=True, index=True)
