@@ -8,7 +8,7 @@ from uuid import UUID
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ...models.scrape.scrape_update import ScrapeUpdate
-from ...types import ModelType, PatchType
+from ...types import CreateType, ModelType, PatchType
 from . import BaseCRUD
 
 logger = logging.getLogger(__name__)
@@ -62,4 +62,32 @@ class ScrapeItemCRUD(BaseCRUD):
 
         await self.session.refresh(instance)
 
+        return instance
+
+    async def create(self, data: CreateType, **kwargs) -> ModelType:
+        """Create a model instance.
+
+        kwargs are used to pass extra attributes to model instantiation methods
+        """
+        # don't know how to fix this yet, createEvent converts to Event,
+        # but mypy doesn't like this
+        # logger.info(f"data.dict={pformat(data.dict())} \n\n{kwargs=}")
+
+        instance: ModelType = self.model(**data.dict(), **kwargs)
+        self.session.add(instance)
+
+        # always add a scrapeUpdate item
+        su = ScrapeUpdate(
+            scrape_base_id=str(instance.uuid), scrape_type=self.model.__tablename__
+        )
+        self.session.add(su)
+
+        # causes many crashes..
+        try:
+            await self.session.commit()
+        except Exception as e:
+            logger.warning(f"cannot create `{self.model.__tablename__}` item.")
+            raise
+
+        await self.session.refresh(instance)
         return instance

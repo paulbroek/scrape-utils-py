@@ -22,8 +22,8 @@ Base = declarative_base()
 
 
 # class ScrapeUpdate(ScrapeUpdateBase, UUIDModel, table=True):
-# class ScrapeUpdate(Base):
-class ScrapeUpdate():
+# class ScrapeUpdate():
+class ScrapeUpdate(Base):
     __tablename__ = "scrape_updates"
     # __abstract__ = True
 
