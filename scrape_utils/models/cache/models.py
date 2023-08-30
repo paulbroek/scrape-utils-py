@@ -21,57 +21,57 @@ def kb_size(item) -> int:
 
 # class HttpCacheItemBase(BaseModel):
 # class HttpCacheItemBase(ScrapeBaseMixin):
-# class HttpCacheItemBase(ScrapeBase):
-#     status: int = Field(nullable=False)
-#     url: str = Field(nullable=False, unique=True, index=True)
-#     # headers: Headers
-#     headers: Optional[bytes] = Field(nullable=True)
-#     # compressed bytes
-#     body: bytes = Field(nullable=False)
-#     time: float = Field(nullable=False)
+class HttpCacheItemBase(ScrapeBase):
+    status: int = Field(nullable=False)
+    url: str = Field(nullable=False, unique=True, index=True)
+    # headers: Headers
+    headers: Optional[bytes] = Field(nullable=True)
+    # compressed bytes
+    body: bytes = Field(nullable=False)
+    time: float = Field(nullable=False)
 
-#     def __repr__(self):
-#         return (
-#             f"{self.__class__.__name__}("
-#             f"status={self.status}, "
-#             f"url='{self.url}', "
-#             f"id='{self.uuid}', "
-#             f"headers={self.headers}, "
-#             f"body='...' ({kb_size(self.body):,}), "
-#             f"time={self.time}"
-#             f")"
-#         )
-
-
-# # @mapper_registry.mapped
-# class HttpCacheItem(HttpCacheItemBase, UUIDModel, table=True):
-#     __tablename__ = f"http_cache_items"
-
-#     @classmethod
-#     def from_response(cls, response) -> Self:
-#         time: Final[float] = datetime.utcnow().timestamp()
-
-#         data = {
-#             "status": response.status,
-#             "url": response.url,
-#             "headers": response.headers.to_string,
-#             # "body": _compress(response.body),
-#             "body": lz4.compress(response.body),
-#             "time": time,
-#             "last_scraped": datetime.utcnow(),
-#         }
-
-#         return cls(**data)
-
-#     __mapper_args__ = {
-#         "polymorphic_identity": "http_cache_items",
-#         # "concrete": True,
-#     }
+    def __repr__(self):
+        return (
+            f"{self.__class__.__name__}("
+            f"status={self.status}, "
+            f"url='{self.url}', "
+            f"id='{self.uuid}', "
+            f"headers={self.headers}, "
+            f"body='...' ({kb_size(self.body):,}), "
+            f"time={self.time}"
+            f")"
+        )
 
 
-# class HttpCacheItemRead(HttpCacheItemBase):
-#     pass
+# @mapper_registry.mapped
+class HttpCacheItem(HttpCacheItemBase, UUIDModel, table=True):
+    __tablename__ = f"http_cache_items"
+
+    @classmethod
+    def from_response(cls, response) -> Self:
+        time: Final[float] = datetime.utcnow().timestamp()
+
+        data = {
+            "status": response.status,
+            "url": response.url,
+            "headers": response.headers.to_string,
+            # "body": _compress(response.body),
+            "body": lz4.compress(response.body),
+            "time": time,
+            "last_scraped": datetime.utcnow(),
+        }
+
+        return cls(**data)
+
+    __mapper_args__ = {
+        "polymorphic_identity": "http_cache_items",
+        # "concrete": True,
+    }
 
 
-# class HttpCacheItemPatch(HttpCacheItemBase):
-#     pass
+class HttpCacheItemRead(HttpCacheItemBase):
+    pass
+
+
+class HttpCacheItemPatch(HttpCacheItemBase):
+    pass

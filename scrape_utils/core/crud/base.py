@@ -11,6 +11,7 @@ from uuid import UUID
 from fastapi import HTTPException
 from fastapi import status as http_status
 from sqlalchemy import delete, func, select
+from sqlmodel import SQLModel
 
 from ...models.main import UUIDModel
 # from ...models.scrape.scrape_update import ScrapeUpdate
@@ -72,7 +73,7 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
         #     self._cached_patch_model = self._get_patch_model()
         return self._cached_patch_model
 
-    # TODO: can be cached method
+    # TODO: try to cache the method
     @classmethod
     # def _id_attr_name(cls, model: Type[ModelType]) -> str:
     def _id_attr_name(cls, other_model: Optional[Type[ModelType]] = None) -> str:
@@ -84,18 +85,16 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
 
         assert isinstance(model, type), f"should pass a class"
 
+        assert issubclass(model, SQLModel), f"{model} should be a subclass of SQLModel"
+
         # logger.info(f"{model=} {type(model)=}")
 
-        # return (
-        #     getattr(model, "uuid")
-        #     # if issubclass(model, UUIDModel)
-        #     if isinstance(model, UUIDModel)
-        #     else getattr(model, "id")
-        # )
-
-        # return "uuid" if issubclass(model, UUIDModel) else "id"
         # always use uuid attribute?
-        return "uuid"
+        # return "uuid"
+        # TODO: try to always return the right id attribute name
+        attr_name: str = model.__table__.primary_key.columns.items()[0][0]
+        assert isinstance(attr_name, str), f"{attr_name=} {type(attr_name)=}"
+        return attr_name
 
     @classmethod
     def _get_id_attr(
@@ -161,7 +160,8 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
         assert isinstance(model_id, (str, UUID)), f"{type(model_id)=}"
         # id_attr = self._id_attr_name()
         # logger.info(f"{model_id=}")
-        statement = select(self.model).where(self.model.uuid == model_id)
+        # statement = select(self.model).where(self.model.uuid == model_id)
+        statement = select(self.model).where(self._get_id_attr(self.model) == str(model_id))
         # statement = select(self.model).where(id_attr == model_id)
         results = await self.session.execute(statement=statement)
         # logger.info(f"{results=}")
