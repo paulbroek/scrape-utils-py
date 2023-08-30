@@ -92,7 +92,13 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
         # always use uuid attribute?
         # return "uuid"
         # TODO: try to always return the right id attribute name
-        attr_name: str = model.__table__.primary_key.columns.items()[0][0]
+        primary_keys: list = model.__table__.primary_key.columns.items()[0]
+        if len(primary_keys) > 0:
+            raise NotImplementedError(
+                f"only single primary key is supported. {len(primary_keys)=} {primary_keys=}"
+            )
+
+        attr_name: str = primary_keys[0]
         assert isinstance(attr_name, str), f"{attr_name=} {type(attr_name)=}"
         return attr_name
 
@@ -104,35 +110,6 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
         id_attr: str = cls._id_attr_name(other_model=other_model)
 
         return getattr(instance, id_attr)
-
-    # TODO: moved to .scrape_item.py, since it uses ScrapeUpdate class. but other projects do not need this.
-    # async def create(self, data: CreateType, **kwargs) -> ModelType:
-    #     """Create a model instance.
-
-    #     kwargs are used to pass extra attributes to model instantiation methods
-    #     """
-    #     # don't know how to fix this yet, createEvent converts to Event,
-    #     # but mypy doesn't like this
-    #     # logger.info(f"data.dict={pformat(data.dict())} \n\n{kwargs=}")
-
-    #     instance: ModelType = self.model(**data.dict(), **kwargs)
-    #     self.session.add(instance)
-
-    #     # always add a scrapeUpdate item
-    #     su = ScrapeUpdate(
-    #         scrape_base_id=str(instance.uuid), scrape_type=self.model.__tablename__
-    #     )
-    #     self.session.add(su)
-
-    #     # causes many crashes..
-    #     try:
-    #         await self.session.commit()
-    #     except Exception as e:
-    #         logger.warning(f"cannot create `{self.model.__tablename__}` item.")
-    #         raise
-
-    #     await self.session.refresh(instance)
-    #     return instance
 
     async def create(self, data: CreateType, **kwargs) -> ModelType:
         """Create a model instance.
@@ -161,7 +138,9 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
         # id_attr = self._id_attr_name()
         # logger.info(f"{model_id=}")
         # statement = select(self.model).where(self.model.uuid == model_id)
-        statement = select(self.model).where(self._get_id_attr(self.model) == str(model_id))
+        statement = select(self.model).where(
+            self._get_id_attr(self.model) == str(model_id)
+        )
         # statement = select(self.model).where(id_attr == model_id)
         results = await self.session.execute(statement=statement)
         # logger.info(f"{results=}")
@@ -231,7 +210,7 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
         self.session.add(instance)
         await self.session.commit()
 
-        logger.info(f"PATCHED {model_id}")
+        logger.debug(f"PATCHED {model_id}")
         return instance
 
     async def delete(self, model_id: str | UUID) -> bool:
