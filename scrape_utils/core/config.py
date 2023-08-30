@@ -32,17 +32,7 @@ class MyBaseSettings(BaseSettings):
         return hash((type(self),) + tuple(self.__dict__.values()))
 
 
-class ScrapeSettings(MyBaseSettings):
-    # Redis
-    redis_host: str
-    redis_port: int
-    redis_db: int
-    redis_url: str
-
-    redis_start_urls_key: str  # list
-    redis_items_key: str  # list
-    redis_verify_scraped_key: str  # set
-
+class DBSettings(BaseSettings):
     # Database
     db_host: str
     db_port: int
@@ -53,7 +43,19 @@ class ScrapeSettings(MyBaseSettings):
     # db_exclude_tables: List[str]
 
 
-class APISettings(MyBaseSettings):
+class ScrapeSettings(MyBaseSettings, DBSettings):
+    # Redis
+    redis_host: str
+    redis_port: int
+    redis_db: int
+    redis_url: str
+
+    redis_start_urls_key: str  # list
+    redis_items_key: str  # list
+    redis_verify_scraped_key: str  # set
+
+
+class APISettings(MyBaseSettings, DBSettings):
     # RabbitMQ
     rmq_host: str
     rmq_port: int
