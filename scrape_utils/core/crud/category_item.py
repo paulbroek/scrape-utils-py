@@ -6,6 +6,7 @@ import importlib
 import logging
 from typing import Generic, List, Optional, Type
 
+from sqlalchemy import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 from ...types import ModelType
@@ -23,10 +24,6 @@ class CategoryItemCRUD(Generic[ModelType]):
 
     def __init__(self, session: AsyncSession, upsertKey: str) -> None:
         self.session: AsyncSession = session
-        # logger.info(f"{dir(self.model)=}")
-        # assert hasattr(
-        #     model, upsertKey
-        # ), f"{upsertKey=} not in {model=}. Use a different upsertKey"
         self.upsertKey: str = upsertKey
         self._cached_create_model = self._get_create_model()
 
@@ -56,16 +53,11 @@ class CategoryItemCRUD(Generic[ModelType]):
         return self._cached_create_model
 
     async def get_create_batch(
-        # self, data: List[TopicCreate], refresh=True
         self,
         data: List[ModelType],
         refresh=True,
     ) -> List[ModelType]:
         """Get or create a batch of category items."""
-        # check if topic names exist in db
-        # logger.info(f"create topic batch: {data=}")
-        # logger.info(f"{dir(self.session)=}")
-
         # Get all existing items that match the list of names
         # query = select(self.model).where(self.model.name.in_([d.name for d in data]))
         # attr_col = self.model.__table__.c.name

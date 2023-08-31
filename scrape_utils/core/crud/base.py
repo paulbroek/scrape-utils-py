@@ -13,13 +13,8 @@ from fastapi import status as http_status
 from sqlalchemy import delete, func, select
 from sqlmodel import SQLModel
 
-from ...models.main import UUIDModel
-# from ...models.scrape.scrape_update import ScrapeUpdate
 from ...types import CreateType, ModelType, PatchType
 from .base_abc import BaseCRUDABC
-
-# from sqlmodel.ext.asyncio.session import AsyncSession
-
 
 logger = logging.getLogger(__name__)
 

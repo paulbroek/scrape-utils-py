@@ -1,15 +1,9 @@
 import uuid as uuid_pkg
-from datetime import datetime
 
 from sqlalchemy import Column, DateTime, Index, String, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy_utils import generic_relationship  # type: ignore[import]
-from sqlmodel import Field
-
-from ....models.main import UUIDModel
-
-# from ...base import Base as SM_Base
 
 # sqlmodel and sqlmodel can be used together, as long as their metadatas are combined in alembic `env.py` file
 Base = declarative_base()
@@ -21,11 +15,8 @@ Base = declarative_base()
 #     )
 
 
-# class ScrapeUpdate(ScrapeUpdateBase, UUIDModel, table=True):
-# class ScrapeUpdate():
 class ScrapeUpdate(Base):
     __tablename__ = "scrape_updates"
-    # __abstract__ = True
 
     uuid = Column(UUID(as_uuid=True), primary_key=True, default=uuid_pkg.uuid4)
 
