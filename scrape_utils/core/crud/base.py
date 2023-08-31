@@ -89,16 +89,14 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
 
         # logger.info(f"{model=} {type(model)=}")
 
-        # always use uuid attribute?
-        # return "uuid"
-        # TODO: try to always return the right id attribute name
-        primary_keys: list = model.__table__.primary_key.columns.items()[0]
-        if len(primary_keys) > 0:
+        # return  id attribute name
+        primary_keys: list = model.__table__.primary_key.columns.items()
+        if len(primary_keys) != 1:
             raise NotImplementedError(
                 f"only single primary key is supported. {len(primary_keys)=} {primary_keys=}"
             )
 
-        attr_name: str = primary_keys[0]
+        attr_name: str = primary_keys[0][0]
         assert isinstance(attr_name, str), f"{attr_name=} {type(attr_name)=}"
         return attr_name
 
@@ -177,7 +175,6 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
             return instance
 
         # yes, patch it
-        # else:
         item: ModelType = item_res[0]
         # logger.info(f"updating {item.uuid=}")
         logger.info(f"updating {item.__tablename__} id={self._get_id_attr(item)}")
@@ -185,18 +182,9 @@ class BaseCRUD(BaseCRUDABC, Generic[ModelType]):
         # data_patch: PatchType = EventPatch(**data.dict())
         # data_patch: Type[self.PatchType] = self.PatchType(**data.dict())
 
-        # TODO: enable again
         # logger.warning("DISABLE PATCH FOR NOW")
         data_patch = self.PatchModel(**data.dict())
 
-        # TODO: deligate to the children class..
-        # logger.info(f"data={pformat(item.dict())}")
-        # logger.info("WILL PATCH")
-        # return await self.patch(self._get_id_attr(item), data=data_patch, **kwargs)
-        # logger.info(f"{self._id_attr_name()=} {getattr(item, self._id_attr_name())=}")
-        # return await self.patch(
-        #     getattr(data, self._id_attr_name()), data=data_patch, **kwargs
-        # )
         return await self.patch(self._get_id_attr(item), data=data_patch, **kwargs)
 
     async def patch(self, model_id: str | UUID, data: PatchType, **kwargs) -> ModelType:
