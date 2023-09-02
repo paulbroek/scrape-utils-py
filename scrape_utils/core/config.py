@@ -21,6 +21,7 @@ def env_fmt(key: str) -> str:
 BASE_SETTINGS_PATH: Final[str] = env_fmt("base_settings")
 DATABASE_SETTINGS_PATH: Final[str] = env_fmt("db")
 REDIS_SETTINGS_PATH: Final[str] = env_fmt("redis")
+API_SETTINGS_PATH: Final[str] = env_fmt("api")
 
 
 class UppercaseStrEnum(Enum):
@@ -36,22 +37,22 @@ class devEnvs(UppercaseStrEnum):
 
 class MyBaseSettings(BaseSettings):
     # Base
-    api_v1_prefix: str = Field(
+    base_settings_api_v1_prefix: str = Field(
         ..., vault_secret_path=BASE_SETTINGS_PATH, vault_secret_key="api_v1_prefix"
     )
-    debug: bool = Field(
+    base_settings_debug: bool = Field(
         ..., vault_secret_path=BASE_SETTINGS_PATH, vault_secret_key="debug"
     )
-    project_name: str = Field(
+    base_settings_project_name: str = Field(
         ..., vault_secret_path=BASE_SETTINGS_PATH, vault_secret_key="project_name"
     )
-    version: str = Field(
+    base_settings_version: str = Field(
         ..., vault_secret_path=BASE_SETTINGS_PATH, vault_secret_key="version"
     )
-    description: str = Field(
+    base_settings_description: str = Field(
         ..., vault_secret_path=BASE_SETTINGS_PATH, vault_secret_key="description"
     )
-    data_dir: str = Field(
+    base_settings_data_dir: str = Field(
         ..., vault_secret_path=BASE_SETTINGS_PATH, vault_secret_key="data_dir"
     )
 
@@ -81,8 +82,8 @@ class MyBaseSettings(BaseSettings):
             return (
                 init_settings,
                 env_settings,
-                vault_config_settings_source,
                 file_secret_settings,
+                vault_config_settings_source,
             )
 
 
@@ -150,13 +151,59 @@ class ScrapeSettings(MyBaseSettings, DBSettings):
 
 class APISettings(MyBaseSettings, DBSettings):
     # RabbitMQ
-    rmq_host: str
-    rmq_port: int
-    rmq_user: str
-    rmq_password: str
-    rmq_url: str
+    rmq_host: str = Field(
+        ...,
+        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_key="host",
+    )
 
-    rmq_publish_queue: str
-    rmq_consume_queue: str
-    rmq_add_row_queue: str
-    rmq_verify_scraped_queue: str
+    rmq_port: int = Field(
+        ...,
+        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_key="port",
+    )
+
+    rmq_user: str = Field(
+        ...,
+        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_key="user",
+    )
+
+    rmq_password: str = Field(
+        ...,
+        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_key="password",
+    )
+
+    rmq_url: str = Field(
+        ...,
+        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_key="url",
+    )
+
+    rmq_publish_queue: str = Field(
+        ...,
+        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_key="publish_queue",
+    )
+
+    rmq_consume_queue: str = Field(
+        ...,
+        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_key="consume_queue",
+    )
+
+    rmq_add_row_queue: str = Field(
+        ...,
+        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_key="add_row_queue",
+    )
+
+    rmq_verify_scraped_queue: str = Field(
+        ...,
+        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_key="verify_scraped_queue",
+    )
+
+    class Config(MyBaseSettings.Config):
+        pass
