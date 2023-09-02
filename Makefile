@@ -19,10 +19,20 @@ wheel: clean $(PYSRC)
 			../misc-scraping/misc_scraping/scrape_youtube/base \
 			../misc-scraping/misc_scraping/scrape_youtube/tests \
 			../misc-scraping/misc_scraping/scrape_goodreads/base \
-			../misc-scraping/misc_scraping/scrape_goodreads/tests | xargs -n 1 cp $(DIST)/*.whl
+			../misc-scraping/misc_scraping/scrape_goodreads/tests \
+			| xargs -n 1 cp $(DIST)/*.whl
 
 clean:
 	rm -f $(DIST)/*
 	rm -rf build/*
-	find ./ -name "*.whl" -type f -delete
+	find	../notion-utils-api/base \
+			../notion-utils-api/api \
+			../notion-utils-api/tests \
+			../misc-scraping/misc_scraping/scrape_youtube/base \
+			../misc-scraping/misc_scraping/scrape_youtube/tests \
+			../misc-scraping/misc_scraping/scrape_goodreads/base \
+			../misc-scraping/misc_scraping/scrape_goodreads/tests \
+			-name "$(PACKAGE)*.whl" -type f -delete
+
+# 	find ./ -name "*.whl" -type f -delete
 # 	find ./base -name "*.whl" -type f -delete

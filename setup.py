@@ -11,6 +11,8 @@ requires: Final[List[str]] = [
     "asyncpg",
     "psycopg2",
     "requests",
+    "pydantic",
+    "pydantic-vault",
     "python-dotenv",
     "sqlalchemy-utils",
     "uvloop",
@@ -23,7 +25,7 @@ requires: Final[List[str]] = [
 
 setup(
     name="scrape_utils",
-    version="0.1.0",
+    version="0.1.1",
     description="Scrape utility package: filters, caching, proxies, ..",
     url="git@github.com:paulbroek/scrape-utils-py.git",
     author="Paul Broek",
