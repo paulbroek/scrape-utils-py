@@ -8,10 +8,11 @@ from pathlib import Path
 from sys import modules
 from typing import Final, Optional, Tuple
 
-from rarc_utils.log import get_create_logger
-
 from .config import devEnvs
 from .settings import ENV_FILE_PATTERN
+
+# from rarc_utils.log import get_create_logger
+
 
 # logger = get_create_logger(cmdLevel=logging.INFO, color=1)
 logger = logging.getLogger(__name__)

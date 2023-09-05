@@ -1,3 +1,4 @@
+import logging
 import os
 from enum import Enum
 from typing import Final
@@ -11,7 +12,9 @@ PYTHON_ENV: Final[str] = os.getenv("PYTHON_ENV", "").upper()
 if not PYTHON_ENV:
     raise ValueError("PYTHON_ENV should be set")
 
-VAULT_SECRET_PATH: Final[str] = "secret/data"
+# vault dev mode uses secret/data path
+# VAULT_SECRET_PATH: Final[str] = "secret/data"
+VAULT_SECRET_PATH: Final[str] = "secret"
 
 
 def env_fmt(key: str) -> str:
@@ -19,9 +22,11 @@ def env_fmt(key: str) -> str:
 
 
 BASE_SETTINGS_PATH: Final[str] = env_fmt("base_settings")
-DATABASE_SETTINGS_PATH: Final[str] = env_fmt("db")
+DB_SETTINGS_PATH: Final[str] = env_fmt("db")
 REDIS_SETTINGS_PATH: Final[str] = env_fmt("redis")
-API_SETTINGS_PATH: Final[str] = env_fmt("api")
+RMQ_SETTINGS_PATH: Final[str] = env_fmt("rmq")
+
+logger = logging.getLogger(__name__)
 
 
 class UppercaseStrEnum(Enum):
@@ -35,7 +40,37 @@ class devEnvs(UppercaseStrEnum):
     PROD = "PROD"
 
 
+# class MyBaseSettings(BaseSettings, metaclass=MyMetaclass):
 class MyBaseSettings(BaseSettings):
+    # neccesary to support lru_cache in fastapi dependency injection
+    def __hash__(self):
+        return hash((type(self),) + tuple(self.__dict__.values()))
+
+    @classmethod
+    def create_with_customizations(cls, custom_path: str):
+        """All fields can get a project name prefix.
+
+        So that multiple package keys can be retrieved
+        A fix/replacement for vault namespaces
+        """
+        assert not custom_path.endswith("/"), "please pass a plain string"
+        # custom_path = os.getenv("VAULT_KEY_PREFIX")
+        # instance = cls()
+        if custom_path:
+            for field_name, field_value in cls.__fields__.items():
+                field_info = field_value.field_info
+                field_info.extra["vault_secret_path"] = field_info.extra[
+                    "vault_secret_path"
+                ].replace(
+                    VAULT_SECRET_PATH + "/", f"{VAULT_SECRET_PATH}/{custom_path}/"
+                )
+                cls.__fields__[field_name].field_info = field_info
+
+            instance = cls()
+        return instance
+
+
+class GeneralSettings(MyBaseSettings):
     # Base
     base_settings_api_v1_prefix: str = Field(
         ..., vault_secret_path=BASE_SETTINGS_PATH, vault_secret_key="api_v1_prefix"
@@ -57,10 +92,6 @@ class MyBaseSettings(BaseSettings):
     )
 
     # model_config = SettingsConfigDict(env_file=".env")
-
-    # neccesary to support lru_cache in fastapi dependency injection
-    def __hash__(self):
-        return hash((type(self),) + tuple(self.__dict__.values()))
 
     class Config:
         # vault_url: str = "https://vault.tld"
@@ -87,26 +118,26 @@ class MyBaseSettings(BaseSettings):
             )
 
 
-class DBSettings(BaseSettings):
+class DBSettings(MyBaseSettings):
     # Database
     db_host: str = Field(
-        ..., vault_secret_path=DATABASE_SETTINGS_PATH, vault_secret_key="host"
+        ..., vault_secret_path=DB_SETTINGS_PATH, vault_secret_key="host"
     )
     db_port: int = Field(
-        ..., vault_secret_path=DATABASE_SETTINGS_PATH, vault_secret_key="port"
+        ..., vault_secret_path=DB_SETTINGS_PATH, vault_secret_key="port"
     )
     db_pass: SecretStr = Field(
-        ..., vault_secret_path=DATABASE_SETTINGS_PATH, vault_secret_key="pass"
+        ..., vault_secret_path=DB_SETTINGS_PATH, vault_secret_key="pass"
     )
     db_name: str = Field(
-        ..., vault_secret_path=DATABASE_SETTINGS_PATH, vault_secret_key="name"
+        ..., vault_secret_path=DB_SETTINGS_PATH, vault_secret_key="name"
     )
     db_connection_str: SecretStr = Field(
-        ..., vault_secret_path=DATABASE_SETTINGS_PATH, vault_secret_key="connection_str"
+        ..., vault_secret_path=DB_SETTINGS_PATH, vault_secret_key="connection_str"
     )
     db_async_connection_str: SecretStr = Field(
         ...,
-        vault_secret_path=DATABASE_SETTINGS_PATH,
+        vault_secret_path=DB_SETTINGS_PATH,
         vault_secret_key="async_connection_str",
     )
     # db_exclude_tables: List[str]
@@ -115,7 +146,7 @@ class DBSettings(BaseSettings):
     #     pass
 
 
-class ScrapeSettings(MyBaseSettings, DBSettings):
+class ScrapeSettings(GeneralSettings, DBSettings):
     # Redis
     redis_host: str = Field(
         ..., vault_secret_path=REDIS_SETTINGS_PATH, vault_secret_key="host"
@@ -145,65 +176,65 @@ class ScrapeSettings(MyBaseSettings, DBSettings):
         vault_secret_key="verify_scraped_key",
     )
 
-    class Config(MyBaseSettings.Config):
+    class Config(GeneralSettings.Config):
         pass
 
 
-class APISettings(MyBaseSettings, DBSettings):
+class APISettings(GeneralSettings, DBSettings):
     # RabbitMQ
     rmq_host: str = Field(
         ...,
-        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_path=RMQ_SETTINGS_PATH,
         vault_secret_key="host",
     )
 
     rmq_port: int = Field(
         ...,
-        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_path=RMQ_SETTINGS_PATH,
         vault_secret_key="port",
     )
 
     rmq_user: str = Field(
         ...,
-        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_path=RMQ_SETTINGS_PATH,
         vault_secret_key="user",
     )
 
     rmq_password: str = Field(
         ...,
-        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_path=RMQ_SETTINGS_PATH,
         vault_secret_key="password",
     )
 
     rmq_url: str = Field(
         ...,
-        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_path=RMQ_SETTINGS_PATH,
         vault_secret_key="url",
     )
 
     rmq_publish_queue: str = Field(
         ...,
-        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_path=RMQ_SETTINGS_PATH,
         vault_secret_key="publish_queue",
     )
 
     rmq_consume_queue: str = Field(
         ...,
-        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_path=RMQ_SETTINGS_PATH,
         vault_secret_key="consume_queue",
     )
 
     rmq_add_row_queue: str = Field(
         ...,
-        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_path=RMQ_SETTINGS_PATH,
         vault_secret_key="add_row_queue",
     )
 
     rmq_verify_scraped_queue: str = Field(
         ...,
-        vault_secret_path=API_SETTINGS_PATH,
+        vault_secret_path=RMQ_SETTINGS_PATH,
         vault_secret_key="verify_scraped_queue",
     )
 
-    class Config(MyBaseSettings.Config):
+    class Config(GeneralSettings.Config):
         pass

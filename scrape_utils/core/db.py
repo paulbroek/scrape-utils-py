@@ -3,7 +3,7 @@
 PostgreSQL connection methods
 """
 import logging
-from typing import AsyncGenerator, Final
+from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.future.engine import Engine
