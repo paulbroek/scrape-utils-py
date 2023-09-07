@@ -48,8 +48,11 @@ class HttpCacheItem(HttpCacheItemBase, UUIDModel, table=True):
     __tablename__ = f"http_cache_items"
 
     @classmethod
+    # requires py 3.11
+    # def from_response(cls, response):
     def from_response(cls, response) -> Self:
         time: Final[float] = datetime.utcnow().timestamp()
+        # time = datetime.utcnow().timestamp()
 
         data = {
             "status": response.status,

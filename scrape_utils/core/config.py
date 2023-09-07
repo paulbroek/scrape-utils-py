@@ -1,6 +1,7 @@
 import logging
 import os
 from enum import Enum
+from sys import modules
 from typing import Final
 
 # pydantic v2
@@ -8,9 +9,20 @@ from typing import Final
 from pydantic import BaseSettings, Field, SecretStr
 from pydantic_vault import vault_config_settings_source
 
-PYTHON_ENV: Final[str] = os.getenv("PYTHON_ENV", "").upper()
+logger = logging.getLogger(__name__)
+
+
+# PYTHON_ENV: Final[str] = os.getenv("PYTHON_ENV", "").upper()
+PYTHON_ENV: str = os.getenv("PYTHON_ENV", "").upper()
 if not PYTHON_ENV:
     raise ValueError("PYTHON_ENV should be set")
+
+if "pytest" in modules and PYTHON_ENV != "TEST":
+    # logger.info(
+    #     f"requested {PYTHON_ENV} env, but `pytest` is in modules, so using TEST env"
+    # )
+    print(f"requested {PYTHON_ENV} env, but `pytest` is in modules, so using TEST env")
+    PYTHON_ENV = "TEST"
 
 # vault dev mode uses secret/data path
 # VAULT_SECRET_PATH: Final[str] = "secret/data"
@@ -26,10 +38,8 @@ DB_SETTINGS_PATH: Final[str] = env_fmt("db")
 REDIS_SETTINGS_PATH: Final[str] = env_fmt("redis")
 RMQ_SETTINGS_PATH: Final[str] = env_fmt("rmq")
 
-logger = logging.getLogger(__name__)
 
-
-class UppercaseStrEnum(Enum):
+class UppercaseStrEnum(str, Enum):
     def __init__(self, value):
         self._value_ = value.upper()
 
