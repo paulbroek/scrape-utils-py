@@ -17,6 +17,7 @@ PYTHON_ENV: str = os.getenv("PYTHON_ENV", "").upper()
 if not PYTHON_ENV:
     raise ValueError("PYTHON_ENV should be set")
 
+# TODO: set at runtime, inside function, inside MyBaseSettings class?
 if "pytest" in modules and PYTHON_ENV != "TEST":
     # logger.info(
     #     f"requested {PYTHON_ENV} env, but `pytest` is in modules, so using TEST env"
