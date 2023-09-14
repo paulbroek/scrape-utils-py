@@ -2,7 +2,7 @@ import logging
 import os
 from enum import Enum
 from sys import modules
-from typing import Final
+from typing import Final, List, Self
 
 # pydantic v2
 # from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -58,7 +58,7 @@ class MyBaseSettings(BaseSettings):
         return hash((type(self),) + tuple(self.__dict__.values()))
 
     @classmethod
-    def create_with_customizations(cls, custom_path: str):
+    def create_with_customizations(cls, custom_path: str) -> Self:
         """All fields can get a project name prefix.
 
         So that multiple package keys can be retrieved
@@ -67,17 +67,24 @@ class MyBaseSettings(BaseSettings):
         assert not custom_path.endswith("/"), "please pass a plain string"
         # custom_path = os.getenv("VAULT_KEY_PREFIX")
         # instance = cls()
+        secret_paths: List[str] = []
         if custom_path:
             for field_name, field_value in cls.__fields__.items():
                 field_info = field_value.field_info
-                field_info.extra["vault_secret_path"] = field_info.extra[
-                    "vault_secret_path"
-                ].replace(
+                secret_path: str = field_info.extra["vault_secret_path"].replace(
                     VAULT_SECRET_PATH + "/", f"{VAULT_SECRET_PATH}/{custom_path}/"
                 )
+                secret_paths.append(secret_path)
+                # logger.info(f"{secret_path=}")
+                field_info.extra["vault_secret_path"] = secret_path
                 cls.__fields__[field_name].field_info = field_info
 
             instance = cls()
+
+        # log python env once
+        python_env_from_secret_path = secret_paths[0].split("/")[-1]
+        logger.info(f"python env: {python_env_from_secret_path}")
+
         return instance
 
 
