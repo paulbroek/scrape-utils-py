@@ -65,27 +65,28 @@ class MyBaseSettings(BaseSettings):
         A fix/replacement for vault namespaces
         """
         assert not custom_path.endswith("/"), "please pass a plain string"
+        assert custom_path
         # custom_path = os.getenv("VAULT_KEY_PREFIX")
         secret_paths: List[str] = []
-        if custom_path:
-            for field_name, field_value in cls.__fields__.items():
-                field_info = field_value.field_info
-                # TODO: buggy: can create a very long key.
-                if custom_path not in field_info.extra["vault_secret_path"]:
-                    secret_path: str = field_info.extra["vault_secret_path"].replace(
-                        VAULT_SECRET_PATH + "/", f"{VAULT_SECRET_PATH}/{custom_path}/"
-                    )
-                    secret_paths.append(secret_path)
-                    # logger.info(f"{secret_path=}")
-                    field_info.extra["vault_secret_path"] = secret_path
-                    cls.__fields__[field_name].field_info = field_info
+        # if custom_path:
+        for field_name, field_value in cls.__fields__.items():
+            field_info = field_value.field_info
+            # TODO: buggy: can create a very long key.
+            if custom_path not in field_info.extra["vault_secret_path"]:
+                secret_path: str = field_info.extra["vault_secret_path"].replace(
+                    VAULT_SECRET_PATH + "/", f"{VAULT_SECRET_PATH}/{custom_path}/"
+                )
+                secret_paths.append(secret_path)
+                # logger.info(f"{secret_path=}")
+                field_info.extra["vault_secret_path"] = secret_path
+                cls.__fields__[field_name].field_info = field_info
 
-                else:
-                    logger.warning(f"{custom_path=} already in secret_path")
+                # log python env once
+                python_env_from_secret_path = secret_paths[0].split("/")[-1]
+                logger.info(f"python env: {python_env_from_secret_path}")
 
-            # log python env once
-            python_env_from_secret_path = secret_paths[0].split("/")[-1]
-            logger.info(f"python env: {python_env_from_secret_path}")
+            else:
+                logger.warning(f"{custom_path=} already in secret_path")
 
         instance = cls()
 
