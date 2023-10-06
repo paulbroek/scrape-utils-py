@@ -199,6 +199,13 @@ class ScrapeSettings(GeneralSettings, DBSettings):
         vault_secret_key="verify_scraped_key",
     )
 
+    # set
+    redis_duplicate_start_urls_key: str = Field(
+        ...,
+        vault_secret_path=REDIS_SETTINGS_PATH,
+        vault_secret_key="duplicate_start_urls_key",
+    )
+
     class Config(GeneralSettings.Config):
         pass
 
