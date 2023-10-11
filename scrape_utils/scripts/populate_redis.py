@@ -145,7 +145,7 @@ def main(
 
     redis_pool: aioredis.ConnectionPool = get_redis_pool(settings.redis_url)
 
-    DATA_PATH: Final[Path] = Path(settings.data_dir)
+    DATA_PATH: Final[Path] = Path(settings.base_settings_data_dir)
     SCRAPE_URLS_FILE: Final[Path] = DATA_PATH / "scrape_urls.jl"
     # SCRAPE_ITEMS_FILE: Final[Path] = DATA_PATH / "scrape_items.jl"
 
