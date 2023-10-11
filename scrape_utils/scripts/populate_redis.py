@@ -43,10 +43,10 @@ from pathlib import Path
 from typing import Final, List, Optional
 
 import typer
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from rarc_utils.log import get_create_logger
 from redis import asyncio as aioredis
-from scrape_utils.core.config_env_file import config_env
+# from scrape_utils.core.config_env_file import config_env
 from scrape_utils.core.redis_connection import get_redis_pool, redis_connection
 from scrape_utils.db.helpers import filter_only_new_start_urls
 from scrape_utils.models.redis import (CollectionBase, DataSourceUrls,
@@ -57,10 +57,10 @@ from scrape_utils.models.redis.helpers import (delete_redis_keys,
 from scrape_utils.utils import chunked_list, get_create_event_loop, set_ulimit
 from scrape_utils.utils.typer import collection_validator
 
-_, ENV_FILE = config_env()
+# _, ENV_FILE = config_env()
 
 # it already loaded in scrape_meetup main module
-load_dotenv(ENV_FILE)
+# load_dotenv(ENV_FILE)
 app = typer.Typer(pretty_exceptions_short=False)
 loop = get_create_event_loop()
 
