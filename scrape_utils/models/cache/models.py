@@ -5,7 +5,7 @@ from typing import Final, Optional, Self
 import lz4.block as lz4  # type: ignore[import]
 from pydantic import BaseModel
 from scrape_utils.models.main import UUIDModel
-from scrapy.http import Headers
+# from scrapy.http import Headers
 from sqlalchemy.orm import registry
 from sqlmodel import Field
 
