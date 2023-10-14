@@ -91,3 +91,17 @@ class CategoryItemCRUD(Generic[ModelType]):
         #         await self.session.refresh(instance)
 
         return existing_instances + new_instances
+
+
+async def create_category_mappings(item: dict, categories: dict) -> dict:
+    to_return = {}
+    for cat, mapping in categories.items():
+        if cat in item["item"]:
+            logger.info(f"n{cat} in {item['type']}: {len(item['item'][cat])}")
+
+            # create genres first in a batch
+            to_return[cat] = await mapping["crud"].get_create_batch(
+                [mapping["create_model"](name=n) for n in item["item"][cat]]
+            )
+
+    return to_return
